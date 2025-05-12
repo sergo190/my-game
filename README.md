@@ -927,7 +927,7 @@
         <h1>STANDOFF 2</h1>
         
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v Alpha 0.6.4</div>
+        <div class="version-info">v beta 0.0.2</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
