@@ -920,6 +920,134 @@
             transform: scale(0.95);
             background-color: rgba(52, 152, 219, 0.9) !important;
         }
+
+        /* Donation button and modal styles */
+        .donate-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 200;
+            transition: all 0.3s;
+        }
+
+        .donate-button:hover {
+            background-color: #e67e22;
+            transform: scale(1.05);
+        }
+
+        .donate-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+        }
+
+        .donate-content {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            width: 85%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            border: 2px solid #f39c12;
+            text-align: center;
+        }
+
+        .donate-title {
+            font-size: 24px;
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+
+        .donate-text {
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .donate-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .donate-link-button {
+            padding: 12px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .donate-link-button:hover {
+            background-color: #27ae60;
+        }
+
+        .donate-close-button {
+            padding: 12px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .donate-close-button:hover {
+            background-color: #c0392b;
+        }
+
+        @media (max-width: 768px) {
+            .donate-button {
+                font-size: 12px;
+                padding: 8px 12px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .donate-content {
+                padding: 20px;
+            }
+            
+            .donate-title {
+                font-size: 20px;
+            }
+            
+            .donate-text {
+                font-size: 14px;
+            }
+            
+            .donate-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .donate-link-button,
+            .donate-close-button {
+                width: 100%;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -927,7 +1055,7 @@
         <h1>STANDOFF 2</h1>
         
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v beta 0.0.2</div>
+        <div class="version-info">v beta 0.0.3</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
@@ -935,6 +1063,25 @@
             <button class="tab-button" id="gunsButton">GUNS</button>
             <button class="tab-button" id="settingsButton">SETTINGS</button>
             <button class="menu-button main-action" id="startButton">START GAME</button>
+        </div>
+        
+        <!-- Add the donate button -->
+        <button class="donate-button" id="donateButton">SUPPORT THE DEVELOPER</button>
+    </div>
+
+    <!-- Add the donate modal -->
+    <div class="donate-modal" id="donateModal">
+        <div class="donate-content">
+            <div class="donate-title">SUPPORT THE DEVELOPER</div>
+            <div class="donate-text">
+                If you enjoy playing this game, please consider supporting the developer. 
+                Your donation helps improve the game and create new content. 
+                Thank you for your support!
+            </div>
+            <div class="donate-buttons">
+                <a href="https://send.monobank.ua/jar/6fLejmxxez" target="_blank" class="donate-link-button">DONATE</a>
+                <button class="donate-close-button" id="donateCloseButton">CLOSE</button>
+            </div>
         </div>
     </div>
 
@@ -1143,6 +1290,11 @@
         const reloadKeyButton = document.getElementById('reloadKey');
         const resetControlsButton = document.getElementById('resetControlsButton');
         
+        // Donation elements
+        const donateButton = document.getElementById('donateButton');
+        const donateModal = document.getElementById('donateModal');
+        const donateCloseButton = document.getElementById('donateCloseButton');
+        
         // Mobile detection
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
@@ -1208,7 +1360,12 @@
                 bossWave: "FINAL BOSS (Wave {wave})",
                 ammoPickup: "+{amount} AMMO",
                 healthPickup: "+{amount} HP",
-                finalBoss: "FINAL BOSS"
+                finalBoss: "FINAL BOSS",
+                donateTitle: "SUPPORT THE DEVELOPER",
+                donateText: "If you enjoy playing this game, please consider supporting the developer. Your donation helps improve the game and create new content. Thank you for your support!",
+                donateButton: "DONATE",
+                donateClose: "CLOSE",
+                supportButton: "SUPPORT THE DEVELOPER"
             },
             ru: {
                 title: "СТЕНДОФФ 2",
@@ -1259,9 +1416,14 @@
                 bossWave: "ФИНАЛЬНЫЙ БОСС (Волна {wave})",
                 ammoPickup: "+{amount} ПАТРОНОВ",
                 healthPickup: "+{amount} ЗДОРОВЬЯ",
-                finalBoss: "ФИНАЛЬНЫЙ БОСС"
+                finalBoss: "ФИНАЛЬНЫЙ БОСС",
+                donateTitle: "ПОДДЕРЖАТЬ РАЗРАБОТЧИКА",
+                donateText: "Если вам нравится эта игра, пожалуйста, поддержите разработчика. Ваше пожертвование помогает улучшать игру и создавать новый контент. Спасибо за вашу поддержку!",
+                donateButton: "ПОДДЕРЖАТЬ",
+                donateClose: "ЗАКРЫТЬ",
+                supportButton: "ПОДДЕРЖАТЬ РАЗРАБОТЧИКА"
             },
-                uk: {
+            uk: {
                 title: "СТЕНДОФФ 2",
                 difficulty: "СКЛАДНІСТЬ",
                 guns: "ЗБРОЯ",
@@ -1311,7 +1473,12 @@
                 bossWave: "ФІНАЛЬНИЙ БОС (Хвиля {wave})",
                 ammoPickup: "+{amount} НАБОЇВ",
                 healthPickup: "+{amount} ЗДОРОВ'Я",
-                finalBoss: "ФІНАЛЬНИЙ БОС"
+                finalBoss: "ФІНАЛЬНИЙ БОС",
+                donateTitle: "ПІДТРИМАТИ РОЗРОБНИКА",
+                donateText: "Якщо вам подобається ця гра, будь ласка, підтримайте розробника. Ваш внесок допомагає покращувати гру та створювати новий контент. Дякуємо за вашу підтримку!",
+                donateButton: "ПІДТРИМАТИ",
+                donateClose: "ЗАКРИТИ",
+                supportButton: "ПІДТРИМАТИ РОЗРОБНИКА"
             }
         };
         
@@ -1651,11 +1818,40 @@
             
             resetControlsButton.addEventListener('click', resetControlsToDefault);
             
+            // Donation button functionality
+            donateButton.addEventListener('click', () => {
+                donateModal.style.display = 'flex';
+            });
+            
+            donateCloseButton.addEventListener('click', () => {
+                donateModal.style.display = 'none';
+            });
+            
             // Load saved settings
             loadSettings();
             
             // Update control display
             updateControlDisplay();
+            
+            // Update donation UI when language changes
+            function updateDonationUI() {
+                const lang = translations[currentLanguage];
+                document.querySelector('.donate-title').textContent = lang.donateTitle;
+                document.querySelector('.donate-text').textContent = lang.donateText;
+                document.querySelector('.donate-link-button').textContent = lang.donateButton;
+                document.getElementById('donateCloseButton').textContent = lang.donateClose;
+                document.getElementById('donateButton').textContent = lang.supportButton;
+            }
+            
+            // Call this when language changes
+            const originalSetLanguage = setLanguage;
+            setLanguage = function(lang) {
+                originalSetLanguage(lang);
+                updateDonationUI();
+            };
+            
+            // Initialize donation UI
+            updateDonationUI();
         }
         
         // Start rebinding a key
