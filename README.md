@@ -426,6 +426,34 @@
             margin-bottom: 20px;
             text-align: center;
         }
+
+        .game-over-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #nextLevelButton {
+            background-color: #2ecc71;
+        }
+
+        #nextLevelButton:hover {
+            background-color: #27ae60;
+        }
+
+        #mainMenuButton2 {
+            background-color: #7f8c8d;
+        }
+
+        #mainMenuButton2:hover {
+            background-color: #95a5a6;
+        }
         
         #restartButton {
             padding: 15px 30px;
@@ -694,6 +722,75 @@
             z-index: 200;
         }
 
+        /* Level selection styles */
+        .level-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+
+        .level-button {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background-color: rgba(52, 152, 219, 0.3);
+            border: 2px solid #3498db;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .level-button:hover {
+            background-color: rgba(52, 152, 219, 0.5);
+            transform: scale(1.05);
+        }
+
+        .level-button.completed {
+            background-color: rgba(46, 204, 113, 0.3);
+            border-color: #2ecc71;
+        }
+
+        .level-button.boss {
+            background-color: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        .level-button.locked {
+            background-color: rgba(127, 140, 141, 0.3);
+            border-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .level-button.locked::after {
+            content: '🔒';
+            position: absolute;
+            font-size: 24px;
+        }
+
+        .level-button.boss::before {
+            content: '👑';
+            position: absolute;
+            top: 5px;
+            font-size: 16px;
+        }
+
+        /* Level info */
+        .level-info {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #f1c40f;
+        }
+
         /* Mobile Optimizations */
         @media (max-width: 768px) {
             #menu h1 {
@@ -792,6 +889,16 @@
                 padding: 20px;
             }
             
+            /* Level selection for mobile */
+            .level-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .level-button {
+                font-size: 16px;
+            }
+            
             /* Version info for mobile */
             .version-info {
                 font-size: 12px;
@@ -871,6 +978,11 @@
                 padding: 10px;
                 font-size: 14px;
             }
+            
+            /* Level selection for landscape */
+            .level-container {
+                grid-template-columns: repeat(5, 1fr);
+            }
         }
 
         @media (max-width: 480px) {
@@ -896,9 +1008,12 @@
                 width: 120px;
             }
             
-            /* Tab adjustments for small screens */
-            .tab-button {
-                padding: 10px;
+            /* Level selection for small screens */
+            .level-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .level-button {
                 font-size: 14px;
             }
         }
@@ -1055,11 +1170,11 @@
         <h1>Droch Gun</h1>
         
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v beta 0.0.3</div>
+        <div class="version-info">v beta 1.0.2</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
-            <button class="tab-button" id="difficultyButton">DIFFICULTY</button>
+            <button class="tab-button" id="levelsButton">LEVELS</button>
             <button class="tab-button" id="gunsButton">GUNS</button>
             <button class="tab-button" id="settingsButton">SETTINGS</button>
             <button class="menu-button main-action" id="startButton">START GAME</button>
@@ -1085,15 +1200,13 @@
         </div>
     </div>
 
-    <!-- Difficulty Modal -->
-    <div class="modal" id="difficultyModal">
-        <button class="back-button" id="backFromDifficulty">←</button>
+    <!-- Levels Modal -->
+    <div class="modal" id="levelsModal">
+        <button class="back-button" id="backFromLevels">←</button>
         <div class="modal-content">
-            <div class="modal-title">SELECT DIFFICULTY</div>
-            <div class="menu-buttons">
-                <button class="menu-button difficulty" data-difficulty="easy">EASY (3 waves)</button>
-                <button class="menu-button difficulty active" data-difficulty="normal">NORMAL (5 waves)</button>
-                <button class="menu-button difficulty" data-difficulty="hard">HARD (7 waves)</button>
+            <div class="modal-title">SELECT LEVEL</div>
+            <div class="level-container" id="levelContainer">
+                <!-- Levels will be generated here -->
             </div>
         </div>
     </div>
@@ -1194,14 +1307,18 @@
             <div id="ammoInfo">30/90</div>
         </div>
         
-        <div id="waveInfo">Wave: 1/3 | Enemies: 10</div>
+        <div id="waveInfo">Level: 1 | Enemies: 10</div>
         
         <div id="weapon"></div>
         
         <div id="gameOver">
             <h1>GAME OVER</h1>
             <div id="resultStats"></div>
-            <button id="restartButton">PLAY AGAIN</button>
+            <div class="game-over-buttons">
+                <button id="restartButton">PLAY AGAIN</button>
+                <button id="nextLevelButton" class="hidden">NEXT LEVEL</button>
+                <button id="mainMenuButton2">MAIN MENU</button>
+            </div>
         </div>
 
         <!-- Pause Button -->
@@ -1246,12 +1363,13 @@
         const weaponDisplay = document.getElementById('weapon');
         const gameOverScreen = document.getElementById('gameOver');
         const restartButton = document.getElementById('restartButton');
+        const nextLevelButton = document.getElementById('nextLevelButton');
+        const mainMenuButton2 = document.getElementById('mainMenuButton2');
         const resultStats = document.getElementById('resultStats');
         const gameContainer = document.getElementById('gameContainer');
         const menu = document.getElementById('menu');
         const startButton = document.getElementById('startButton');
         const weaponButtons = document.querySelectorAll('.weapon-btn');
-        const difficultyButtons = document.querySelectorAll('.difficulty');
         const bossHealthBar = document.querySelector('.boss-health-bar');
         const bossNameDisplay = document.querySelector('.boss-name');
         const joystickContainer = document.getElementById('joystickContainer');
@@ -1266,20 +1384,21 @@
         const mainMenuButton = document.getElementById('mainMenuButton');
         
         // Modal elements
-        const difficultyModal = document.getElementById('difficultyModal');
+        const levelsModal = document.getElementById('levelsModal');
         const gunsModal = document.getElementById('gunsModal');
         const settingsModal = document.getElementById('settingsModal');
         const languageModal = document.getElementById('languageModal');
-        const difficultyButton = document.getElementById('difficultyButton');
+        const levelsButton = document.getElementById('levelsButton');
         const gunsButton = document.getElementById('gunsButton');
         const settingsButton = document.getElementById('settingsButton');
-        const backFromDifficulty = document.getElementById('backFromDifficulty');
+        const backFromLevels = document.getElementById('backFromLevels');
         const backFromGuns = document.getElementById('backFromGuns');
         const backFromSettings = document.getElementById('backFromSettings');
         const backFromLanguage = document.getElementById('backFromLanguage');
         const languageButton = document.getElementById('languageButton');
         const currentLanguageDisplay = document.getElementById('currentLanguage');
         const languageOptions = document.querySelectorAll('.language-option');
+        const levelContainer = document.getElementById('levelContainer');
         
         // Control elements
         const forwardKeyButton = document.getElementById('forwardKey');
@@ -1303,6 +1422,7 @@
         const HEALTH_PACK_HEAL = 0.1; // Heals 10% of max health
         const AMMO_PACK_AMOUNT = 30;
         const AMMO_SPAWN_INTERVAL = 8000; // 8 seconds
+        const TOTAL_LEVELS = 20;
         
         // Auto-fire variables
         let autoFireInterval = null;
@@ -1313,14 +1433,11 @@
         const translations = {
             en: {
                 title: "STANDOFF 2",
-                difficulty: "DIFFICULTY",
+                levels: "LEVELS",
                 guns: "GUNS",
                 settings: "SETTINGS",
                 startGame: "START GAME",
-                selectDifficulty: "SELECT DIFFICULTY",
-                easy: "EASY (3 waves)",
-                normal: "NORMAL (5 waves)",
-                hard: "HARD (7 waves)",
+                selectLevel: "SELECT LEVEL",
                 selectWeapon: "SELECT WEAPON",
                 pistol: "PISTOL",
                 rifle: "RIFLE",
@@ -1350,14 +1467,15 @@
                 victory: "VICTORY!",
                 finalScore: "Final Score:",
                 totalKills: "Total Kills:",
-                wavesCompleted: "Waves Completed:",
+                levelsCompleted: "Levels Completed:",
                 score: "Score:",
                 kills: "Kills:",
-                waveReached: "Wave Reached:",
+                levelReached: "Level Reached:",
                 playAgain: "PLAY AGAIN",
+                nextLevel: "NEXT LEVEL",
                 fire: "FIRE",
                 aim: "AIM",
-                bossWave: "FINAL BOSS (Wave {wave})",
+                bossLevel: "BOSS (Level {level})",
                 ammoPickup: "+{amount} AMMO",
                 healthPickup: "+{amount} HP",
                 finalBoss: "FINAL BOSS",
@@ -1365,18 +1483,18 @@
                 donateText: "If you enjoy playing this game, please consider supporting the developer. Your donation helps improve the game and create new content. Thank you for your support!",
                 donateButton: "DONATE",
                 donateClose: "CLOSE",
-                supportButton: "SUPPORT THE DEVELOPER"
+                supportButton: "SUPPORT THE DEVELOPER",
+                enemies: "Enemies",
+                level: "Level",
+                boss: "BOSS"
             },
             ru: {
                 title: "СТЕНДОФФ 2",
-                difficulty: "СЛОЖНОСТЬ",
+                levels: "УРОВНИ",
                 guns: "ОРУЖИЕ",
                 settings: "НАСТРОЙКИ",
                 startGame: "НАЧАТЬ ИГРУ",
-                selectDifficulty: "ВЫБЕРИТЕ СЛОЖНОСТЬ",
-                easy: "ЛЕГКО (3 волны)",
-                normal: "НОРМАЛЬНО (5 волн)",
-                hard: "СЛОЖНО (7 волн)",
+                selectLevel: "ВЫБЕРИТЕ УРОВЕНЬ",
                 selectWeapon: "ВЫБЕРИТЕ ОРУЖИЕ",
                 pistol: "ПИСТОЛЕТ",
                 rifle: "АВТОМАТ",
@@ -1406,14 +1524,15 @@
                 victory: "ПОБЕДА!",
                 finalScore: "Финальный счет:",
                 totalKills: "Всего убийств:",
-                wavesCompleted: "Волн пройдено:",
+                levelsCompleted: "Уровней пройдено:",
                 score: "Счет:",
                 kills: "Убийств:",
-                waveReached: "Достигнута волна:",
+                levelReached: "Достигнут уровень:",
                 playAgain: "ИГРАТЬ СНОВА",
+                nextLevel: "СЛЕДУЮЩИЙ УРОВЕНЬ",
                 fire: "ОГОНЬ",
                 aim: "ПРИЦЕЛ",
-                bossWave: "ФИНАЛЬНЫЙ БОСС (Волна {wave})",
+                bossLevel: "БОСС (Уровень {level})",
                 ammoPickup: "+{amount} ПАТРОНОВ",
                 healthPickup: "+{amount} ЗДОРОВЬЯ",
                 finalBoss: "ФИНАЛЬНЫЙ БОСС",
@@ -1421,18 +1540,18 @@
                 donateText: "Если вам нравится эта игра, пожалуйста, поддержите разработчика. Ваше пожертвование помогает улучшать игру и создавать новый контент. Спасибо за вашу поддержку!",
                 donateButton: "ПОДДЕРЖАТЬ",
                 donateClose: "ЗАКРЫТЬ",
-                supportButton: "ПОДДЕРЖАТЬ РАЗРАБОТЧИКА"
+                supportButton: "ПОДДЕРЖАТЬ РАЗРАБОТЧИКА",
+                enemies: "Враги",
+                level: "Уровень",
+                boss: "БОСС"
             },
             uk: {
                 title: "СТЕНДОФФ 2",
-                difficulty: "СКЛАДНІСТЬ",
+                levels: "РІВНІ",
                 guns: "ЗБРОЯ",
                 settings: "НАЛАШТУВАННЯ",
                 startGame: "ПОЧАТИ ГРУ",
-                selectDifficulty: "ОБЕРІТЬ СКЛАДНІСТЬ",
-                easy: "ЛЕГКО (3 хвилі)",
-                normal: "НОРМАЛЬНО (5 хвиль)",
-                hard: "ВАЖКО (7 хвиль)",
+                selectLevel: "ОБЕРІТЬ РІВЕНЬ",
                 selectWeapon: "ОБЕРІТЬ ЗБРОЮ",
                 pistol: "ПІСТОЛЕТ",
                 rifle: "АВТОМАТ",
@@ -1463,14 +1582,15 @@
                 victory: "ПЕРЕМОГА!",
                 finalScore: "Фінальний рахунок:",
                 totalKills: "Всього вбивств:",
-                wavesCompleted: "Хвиль пройдено:",
+                levelsCompleted: "Рівнів пройдено:",
                 score: "Рахунок:",
                 kills: "Вбивств:",
-                waveReached: "Досягнуто хвилю:",
+                levelReached: "Досягнуто рівень:",
                 playAgain: "ГРАТИ ЗНОВУ",
+                nextLevel: "НАСТУПНИЙ РІВЕНЬ",
                 fire: "ВОГОНЬ",
                 aim: "ПРИЦІЛ",
-                bossWave: "ФІНАЛЬНИЙ БОС (Хвиля {wave})",
+                bossLevel: "БОС (Рівень {level})",
                 ammoPickup: "+{amount} НАБОЇВ",
                 healthPickup: "+{amount} ЗДОРОВ'Я",
                 finalBoss: "ФІНАЛЬНИЙ БОС",
@@ -1478,7 +1598,10 @@
                 donateText: "Якщо вам подобається ця гра, будь ласка, підтримайте розробника. Ваш внесок допомагає покращувати гру та створювати новий контент. Дякуємо за вашу підтримку!",
                 donateButton: "ПІДТРИМАТИ",
                 donateClose: "ЗАКРИТИ",
-                supportButton: "ПІДТРИМАТИ РОЗРОБНИКА"
+                supportButton: "ПІДТРИМАТИ РОЗРОБНИКА",
+                enemies: "Вороги",
+                level: "Рівень",
+                boss: "БОС"
             }
         };
         
@@ -1496,6 +1619,10 @@
         let currentControls = {...defaultControls};
         let rebindingKey = null;
         
+        // Level progress
+        let unlockedLevel = 1;
+        let currentLevel = 1;
+        
         // Set canvas size
         function resizeCanvas() {
             const width = window.innerWidth;
@@ -1511,31 +1638,31 @@
             // Scale UI for mobile
             if (isMobile) {
                 const scale = Math.min(width / 375, height / 667);
-                document.documentElement.style.fontSize = `${14 * scale}px`;
+                document.documentElement.style.fontSize = 14 * scale + 'px';
                 
                 // Обновляем размеры элементов управления при изменении размера экрана
                 const controlSize = Math.min(width, height) * 0.15;
                 
                 // Настройки джойстика
-                joystickContainer.style.width = `${controlSize * 1.5}px`;
-                joystickContainer.style.height = `${controlSize * 1.5}px`;
-                joystick.style.width = `${controlSize}px`;
-                joystick.style.height = `${controlSize}px`;
+                joystickContainer.style.width = controlSize * 1.5 + 'px';
+                joystickContainer.style.height = controlSize * 1.5 + 'px';
+                joystick.style.width = controlSize + 'px';
+                joystick.style.height = controlSize + 'px';
                 
                 // Настройки кнопок
                 const buttons = document.querySelectorAll('.mobile-button');
                 buttons.forEach(btn => {
-                    btn.style.width = `${controlSize}px`;
-                    btn.style.height = `${controlSize}px`;
-                    btn.style.fontSize = `${controlSize * 0.3}px`;
+                    btn.style.width = controlSize + 'px';
+                    btn.style.height = controlSize + 'px';
+                    btn.style.fontSize = controlSize * 0.3 + 'px';
                 });
                 
-                joystickContainer.style.bottom = `${controlSize}px`;
-                joystickContainer.style.left = `${controlSize}px`;
+                joystickContainer.style.bottom = controlSize + 'px';
+                joystickContainer.style.left = controlSize + 'px';
                 
                 const mobileControls = document.querySelector('.mobile-controls');
-                mobileControls.style.bottom = `${controlSize}px`;
-                mobileControls.style.right = `${controlSize}px`;
+                mobileControls.style.bottom = controlSize + 'px';
+                mobileControls.style.right = controlSize + 'px';
             }
             
             // Перемещаем игрока в центр при изменении размера
@@ -1662,39 +1789,29 @@
             }
         };
 
-        // Difficulty settings with waves and enemies per wave
-        const difficulties = {
-            easy: {
-                enemyHealth: 80,
-                enemyDamage: 8,
-                enemySpeed: 0.8,
-                bossSpeed: 1.0,
-                spawnRate: 2500,
-                enemiesPerWave: 10,
-                totalWaves: 3,
-                enemyShootDelay: 2000
-            },
-            normal: {
-                enemyHealth: 100,
-                enemyDamage: 10,
-                enemySpeed: 1.0,
-                bossSpeed: 1.5,
-                spawnRate: 2000,
-                enemiesPerWave: 15,
-                totalWaves: 5,
-                enemyShootDelay: 1800
-            },
-            hard: {
-                enemyHealth: 120,
-                enemyDamage: 12,
-                enemySpeed: 1.2,
-                bossSpeed: 2.0,
-                spawnRate: 1500,
-                enemiesPerWave: 20,
-                totalWaves: 7,
-                enemyShootDelay: 1500
-            }
-        };
+        // Level settings
+        function getLevelSettings(level) {
+            const baseEnemies = 10;
+            const baseHealth = 80;
+            const baseDamage = 8;
+            const baseSpeed = 0.8;
+            const bossSpeed = 1.0;
+            const spawnRate = 2500;
+            const enemyShootDelay = 2000;
+            
+            // Increase difficulty with each level
+            const levelMultiplier = 1 + (level - 1) * 0.1;
+            
+            return {
+                enemyHealth: Math.floor(baseHealth * levelMultiplier),
+                enemyDamage: Math.floor(baseDamage * levelMultiplier),
+                enemySpeed: baseSpeed * levelMultiplier,
+                bossSpeed: bossSpeed * levelMultiplier,
+                spawnRate: Math.max(500, spawnRate - (level - 1) * 100),
+                enemiesPerWave: Math.floor(baseEnemies * levelMultiplier),
+                enemyShootDelay: Math.max(500, enemyShootDelay - (level - 1) * 50)
+            };
+        }
         
         // Game state
         let player = {
@@ -1711,15 +1828,13 @@
         };
         
         let currentWeapon = {...weapons.pistol};
-        let difficulty = 'normal';
         let enemies = [];
         let bullets = [];
         let enemyBullets = [];
         let healthPacks = [];
         let ammoPacks = [];
         let lastEnemySpawn = 0;
-        let wave = 1;
-        let enemiesToSpawn = difficulties.normal.enemiesPerWave;
+        let enemiesToSpawn = 0;
         let enemiesKilled = 0;
         let gameRunning = true;
         let gamePaused = false;
@@ -1748,17 +1863,12 @@
         
         // Initialize game controls
         function initializeControls() {
+            console.log("Initializing controls..."); // Debug
+            
             // Weapon selection
             weaponButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     selectWeapon(this.dataset.weapon);
-                });
-            });
-
-            // Difficulty selection
-            difficultyButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    selectDifficulty(this.dataset.difficulty);
                 });
             });
 
@@ -1767,6 +1877,15 @@
             
             // Restart button
             restartButton.addEventListener('click', startGame);
+            
+            // Next level button
+            nextLevelButton.addEventListener('click', function() {
+                currentLevel++;
+                startGame();
+            });
+            
+            // Main menu buttons
+            mainMenuButton2.addEventListener('click', returnToMenu);
             
             // Pause menu
             pauseButton.addEventListener('click', togglePause);
@@ -1789,17 +1908,35 @@
             }
             
             // Modal controls
-            difficultyButton.addEventListener('click', () => difficultyModal.style.display = 'flex');
-            gunsButton.addEventListener('click', () => gunsModal.style.display = 'flex');
-            settingsButton.addEventListener('click', () => settingsModal.style.display = 'flex');
+            levelsButton.addEventListener('click', function() {
+                console.log("Levels button clicked"); // Debug
+                updateLevelButtons();
+                levelsModal.style.display = 'flex';
+            });
+            gunsButton.addEventListener('click', function() {
+                gunsModal.style.display = 'flex';
+            });
+            settingsButton.addEventListener('click', function() {
+                settingsModal.style.display = 'flex';
+            });
             
-            backFromDifficulty.addEventListener('click', () => difficultyModal.style.display = 'none');
-            backFromGuns.addEventListener('click', () => gunsModal.style.display = 'none');
-            backFromSettings.addEventListener('click', () => settingsModal.style.display = 'none');
+            backFromLevels.addEventListener('click', function() {
+                levelsModal.style.display = 'none';
+            });
+            backFromGuns.addEventListener('click', function() {
+                gunsModal.style.display = 'none';
+            });
+            backFromSettings.addEventListener('click', function() {
+                settingsModal.style.display = 'none';
+            });
             
             // Language controls
-            languageButton.addEventListener('click', () => languageModal.style.display = 'flex');
-            backFromLanguage.addEventListener('click', () => languageModal.style.display = 'none');
+            languageButton.addEventListener('click', function() {
+                languageModal.style.display = 'flex';
+            });
+            backFromLanguage.addEventListener('click', function() {
+                languageModal.style.display = 'none';
+            });
             
             languageOptions.forEach(option => {
                 option.addEventListener('click', function() {
@@ -1809,21 +1946,33 @@
             });
             
             // Control binding
-            forwardKeyButton.addEventListener('click', () => startRebinding('forward'));
-            backwardKeyButton.addEventListener('click', () => startRebinding('backward'));
-            leftKeyButton.addEventListener('click', () => startRebinding('left'));
-            rightKeyButton.addEventListener('click', () => startRebinding('right'));
-            shootKeyButton.addEventListener('click', () => startRebinding('shoot'));
-            reloadKeyButton.addEventListener('click', () => startRebinding('reload'));
+            forwardKeyButton.addEventListener('click', function() {
+                startRebinding('forward');
+            });
+            backwardKeyButton.addEventListener('click', function() {
+                startRebinding('backward');
+            });
+            leftKeyButton.addEventListener('click', function() {
+                startRebinding('left');
+            });
+            rightKeyButton.addEventListener('click', function() {
+                startRebinding('right');
+            });
+            shootKeyButton.addEventListener('click', function() {
+                startRebinding('shoot');
+            });
+            reloadKeyButton.addEventListener('click', function() {
+                startRebinding('reload');
+            });
             
             resetControlsButton.addEventListener('click', resetControlsToDefault);
             
             // Donation button functionality
-            donateButton.addEventListener('click', () => {
+            donateButton.addEventListener('click', function() {
                 donateModal.style.display = 'flex';
             });
             
-            donateCloseButton.addEventListener('click', () => {
+            donateCloseButton.addEventListener('click', function() {
                 donateModal.style.display = 'none';
             });
             
@@ -1852,17 +2001,81 @@
             
             // Initialize donation UI
             updateDonationUI();
+            
+            // Generate level buttons
+            generateLevelButtons();
+        }
+        
+        // Generate level buttons
+        function generateLevelButtons() {
+            console.log("Generating level buttons..."); // Debug
+            levelContainer.innerHTML = '';
+            const lang = translations[currentLanguage];
+            
+            for (let i = 1; i <= TOTAL_LEVELS; i++) {
+                console.log("Creating button for level " + i); // Debug
+                const button = document.createElement('button');
+                button.className = 'level-button';
+                if (i % 5 === 0) {
+                    button.classList.add('boss');
+                }
+                if (i > unlockedLevel) {
+                    button.classList.add('locked');
+                } else if (i < unlockedLevel) {
+                    button.classList.add('completed');
+                }
+                
+                button.textContent = i;
+                
+                const info = document.createElement('div');
+                info.className = 'level-info';
+                if (i % 5 === 0) {
+                    info.textContent = lang.boss;
+                } else {
+                    const enemies = getLevelSettings(i).enemiesPerWave;
+                    info.textContent = enemies + ' ' + lang.enemies.toLowerCase();
+                }
+                
+                button.appendChild(info);
+                
+                button.addEventListener('click', function() {
+                    if (i <= unlockedLevel) {
+                        console.log("Level " + i + " selected"); // Debug
+                        selectLevel(i);
+                        levelsModal.style.display = 'none';
+                    }
+                });
+                
+                levelContainer.appendChild(button);
+            }
+            console.log("Generated " + TOTAL_LEVELS + " level buttons"); // Debug
+        }
+        
+        // Update level buttons based on unlocked level
+        function updateLevelButtons() {
+            console.log("Updating level buttons, unlockedLevel: " + unlockedLevel); // Debug
+            const buttons = document.querySelectorAll('.level-button');
+            buttons.forEach(function(button, index) {
+                const level = index + 1;
+                button.classList.remove('locked', 'completed');
+                
+                if (level > unlockedLevel) {
+                    button.classList.add('locked');
+                } else if (level < unlockedLevel) {
+                    button.classList.add('completed');
+                }
+            });
         }
         
         // Start rebinding a key
         function startRebinding(control) {
             rebindingKey = control;
-            const button = document.getElementById(`${control}Key`);
+            const button = document.getElementById(control + 'Key');
             button.textContent = '...';
             button.style.backgroundColor = '#2ecc71';
             
             // Add temporary event listener for key press
-            const keyListener = (e) => {
+            const keyListener = function(e) {
                 if (e.type === 'keydown') {
                     const key = e.key.toLowerCase();
                     if (key.length === 1 || key === 'arrowup' || key === 'arrowdown' || 
@@ -1874,9 +2087,9 @@
                 }
             };
             
-            const mouseListener = (e) => {
+            const mouseListener = function(e) {
                 if (e.type === 'mousedown') {
-                    bindControl(control, `mouse${e.button}`);
+                    bindControl(control, 'mouse' + e.button);
                     e.preventDefault();
                     document.removeEventListener('mousedown', mouseListener);
                 }
@@ -1892,7 +2105,7 @@
             updateControlDisplay();
             saveSettings();
             
-            const button = document.getElementById(`${control}Key`);
+            const button = document.getElementById(control + 'Key');
             button.style.backgroundColor = '#3498db';
             rebindingKey = null;
         }
@@ -1931,13 +2144,17 @@
         function saveSettings() {
             localStorage.setItem('standoff2_language', currentLanguage);
             localStorage.setItem('standoff2_controls', JSON.stringify(currentControls));
+            localStorage.setItem('standoff2_unlockedLevel', unlockedLevel);
+            console.log("Settings saved"); // Debug
         }
         
         // Load settings from localStorage
         function loadSettings() {
+            console.log("Loading settings..."); // Debug
             const savedLanguage = localStorage.getItem('standoff2_language');
             if (savedLanguage && translations[savedLanguage]) {
                 setLanguage(savedLanguage);
+                console.log("Loaded language: " + savedLanguage); // Debug
             }
             
             const savedControls = localStorage.getItem('standoff2_controls');
@@ -1945,9 +2162,16 @@
                 try {
                     const parsedControls = JSON.parse(savedControls);
                     currentControls = {...defaultControls, ...parsedControls};
+                    console.log("Loaded controls:", currentControls); // Debug
                 } catch (e) {
                     console.error('Failed to parse saved controls', e);
                 }
+            }
+            
+            const savedLevel = localStorage.getItem('standoff2_unlockedLevel');
+            if (savedLevel) {
+                unlockedLevel = parseInt(savedLevel);
+                console.log("Loaded unlockedLevel: " + unlockedLevel); // Debug
             }
         }
         
@@ -1960,12 +2184,12 @@
             
             // Update UI elements
             document.querySelector('#menu h1').textContent = translations[lang].title;
-            difficultyButton.textContent = translations[lang].difficulty;
+            levelsButton.textContent = translations[lang].levels;
             gunsButton.textContent = translations[lang].guns;
             settingsButton.textContent = translations[lang].settings;
             startButton.textContent = translations[lang].startGame;
             
-            document.querySelector('#difficultyModal .modal-title').textContent = translations[lang].selectDifficulty;
+            document.querySelector('#levelsModal .modal-title').textContent = translations[lang].selectLevel;
             document.querySelector('#gunsModal .modal-title').textContent = translations[lang].selectWeapon;
             document.querySelector('#settingsModal .modal-title').textContent = translations[lang].settingsTitle;
             
@@ -1986,10 +2210,12 @@
             // Обновляем текст в меню паузы
             document.querySelector('#pauseMenu h2').textContent = translations[lang].gamePaused;
             resumeButton.textContent = translations[lang].resume;
-            toggleAimButton.textContent = translations[lang].autoAim;
+            toggleAimButton.textContent = translations[lang].autoAim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
             mainMenuButton.textContent = translations[lang].mainMenu;
             
             restartButton.textContent = translations[lang].playAgain;
+            nextLevelButton.textContent = translations[lang].nextLevel;
+            mainMenuButton2.textContent = translations[lang].mainMenu;
             
             // Обновляем названия оружия
             const weaponData = {
@@ -2000,21 +2226,9 @@
                 rpg: translations[lang].rpg
             };
             
-            weaponButtons.forEach(btn => {
+            weaponButtons.forEach(function(btn) {
                 const weaponType = btn.dataset.weapon;
                 btn.textContent = weaponData[weaponType];
-            });
-            
-            // Обновляем названия сложностей
-            const difficultyData = {
-                easy: translations[lang].easy,
-                normal: translations[lang].normal,
-                hard: translations[lang].hard
-            };
-            
-            difficultyButtons.forEach(btn => {
-                const difficultyLevel = btn.dataset.difficulty;
-                btn.textContent = difficultyData[difficultyLevel];
             });
             
             // Обновляем мобильные элементы управления
@@ -2024,14 +2238,19 @@
             // Обновляем кнопку авто-прицела
             updateAimButtonText();
             
+            // Regenerate level buttons with new language
+            generateLevelButtons();
+            
             // Save language
             saveSettings();
         }
 
         // Select weapon function
         function selectWeapon(weaponType) {
-            weaponButtons.forEach(b => b.classList.remove('active'));
-            document.querySelector(`.weapon-btn[data-weapon="${weaponType}"]`).classList.add('active');
+            weaponButtons.forEach(function(b) {
+                b.classList.remove('active');
+            });
+            document.querySelector('.weapon-btn[data-weapon="' + weaponType + '"]').classList.add('active');
             currentWeapon = {...weapons[weaponType]};
             currentWeapon.ammo = currentWeapon.maxAmmo;
             currentWeapon.totalAmmo = currentWeapon.maxAmmo * 5;
@@ -2047,13 +2266,11 @@
             updateHUD();
         }
 
-        // Select difficulty function
-        function selectDifficulty(difficultyLevel) {
-            difficultyButtons.forEach(b => b.classList.remove('active'));
-            document.querySelector(`.difficulty[data-difficulty="${difficultyLevel}"]`).classList.add('active');
-            difficulty = difficultyLevel;
-            enemiesToSpawn = difficulties[difficulty].enemiesPerWave;
-            updateWaveInfo();
+        // Select level function
+        function selectLevel(level) {
+            console.log("Selected level: " + level); // Debug
+            currentLevel = level;
+            startGame();
         }
 
         // Setup mobile controls
@@ -2118,7 +2335,7 @@
             }
             
             // Set interval for subsequent shots
-            autoFireInterval = setInterval(() => {
+            autoFireInterval = setInterval(function() {
                 if (mouseDown && currentWeapon.autoFire && currentWeapon.ammo > 0 && !isReloading) {
                     shoot();
                 } else {
@@ -2164,7 +2381,7 @@
         // Setup keyboard controls
         function setupKeyboardControls() {
             // Additional weapon keys
-            document.addEventListener('keydown', (e) => {
+            document.addEventListener('keydown', function(e) {
                 if (gamePaused || !gameRunning) return;
                 
                 switch(e.key.toLowerCase()) {
@@ -2182,7 +2399,7 @@
             });
 
             // Movement controls
-            window.addEventListener('keydown', (e) => {
+            window.addEventListener('keydown', function(e) {
                 const key = e.key.toLowerCase();
                 keys[key] = true;
                 
@@ -2195,7 +2412,7 @@
                 }
             });
 
-            window.addEventListener('keyup', (e) => {
+            window.addEventListener('keyup', function(e) {
                 keys[e.key.toLowerCase()] = false;
             });
         }
@@ -2230,7 +2447,7 @@
             const ammoNeeded = currentWeapon.maxAmmo - currentWeapon.ammo;
             const ammoToAdd = Math.min(ammoNeeded, currentWeapon.totalAmmo);
             
-            setTimeout(() => {
+            setTimeout(function() {
                 currentWeapon.ammo += ammoToAdd;
                 currentWeapon.totalAmmo -= ammoToAdd;
                 isReloading = false;
@@ -2240,7 +2457,7 @@
             
             // Анимация перезарядки
             weaponDisplay.style.transform = 'translateX(-50%) rotate(-30deg)';
-            setTimeout(() => {
+            setTimeout(function() {
                 weaponDisplay.style.transform = 'translateX(-50%) rotate(0)';
             }, currentWeapon.reloadTime);
         }
@@ -2255,8 +2472,8 @@
         // Update auto-aim button text
         function updateAimButtonText() {
             const lang = translations[currentLanguage];
-            toggleAimButton.textContent = `${lang.autoAim.split(':')[0]}: ${autoAimEnabled ? 'ON' : 'OFF'}`;
-            autoAimButton.textContent = `${lang.aim.split(':')[0]}: ${autoAimEnabled ? 'ON' : 'OFF'}`;
+            toggleAimButton.textContent = lang.autoAim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
+            autoAimButton.textContent = lang.aim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
         }
 
         // Setup joystick
@@ -2299,7 +2516,9 @@
             if (e.type === 'mousemove') {
                 touch = e;
             } else {
-                touch = Array.from(e.touches).find(t => t.identifier === joystickPointerId);
+                touch = Array.from(e.touches).find(function(t) {
+                    return t.identifier === joystickPointerId;
+                });
                 if (!touch) return;
             }
             
@@ -2322,7 +2541,9 @@
             if (!joystickActive) return;
             
             if (e.type === 'touchend') {
-                const touch = Array.from(e.changedTouches).find(t => t.identifier === joystickPointerId);
+                const touch = Array.from(e.changedTouches).find(function(t) {
+                    return t.identifier === joystickPointerId;
+                });
                 if (!touch) return;
             }
             
@@ -2342,7 +2563,7 @@
             
             if (distance > 0) {
                 const moveDistance = Math.min(distance, maxDistance * 0.5);
-                joystick.style.transform = `translate(${Math.cos(angle) * moveDistance}px, ${Math.sin(angle) * moveDistance}px)`;
+                joystick.style.transform = 'translate(' + Math.cos(angle) * moveDistance + 'px, ' + Math.sin(angle) * moveDistance + 'px)';
             } else {
                 joystick.style.transform = 'translate(0, 0)';
             }
@@ -2355,8 +2576,8 @@
             let closestEnemy = null;
             let closestDistance = autoAimRadius;
             
-            enemies.forEach(enemy => {
-                const distance = Math.sqrt((player.x - enemy.x) ** 2 + (player.y - enemy.y) ** 2);
+            enemies.forEach(function(enemy) {
+                const distance = Math.sqrt(Math.pow(player.x - enemy.x, 2) + Math.pow(player.y - enemy.y, 2));
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestEnemy = enemy;
@@ -2380,6 +2601,7 @@
         
         // Initialize game
         function init() {
+            console.log("Initializing game..."); // Debug
             // Clear auto-fire interval
             stopAutoFire();
             
@@ -2392,24 +2614,24 @@
                 
                 const controlSize = Math.min(window.innerWidth, window.innerHeight) * 0.15;
                 
-                joystickContainer.style.width = `${controlSize * 1.5}px`;
-                joystickContainer.style.height = `${controlSize * 1.5}px`;
-                joystick.style.width = `${controlSize}px`;
-                joystick.style.height = `${controlSize}px`;
+                joystickContainer.style.width = controlSize * 1.5 + 'px';
+                joystickContainer.style.height = controlSize * 1.5 + 'px';
+                joystick.style.width = controlSize + 'px';
+                joystick.style.height = controlSize + 'px';
                 
                 const buttons = document.querySelectorAll('.mobile-button');
-                buttons.forEach(btn => {
-                    btn.style.width = `${controlSize}px`;
-                    btn.style.height = `${controlSize}px`;
-                    btn.style.fontSize = `${controlSize * 0.3}px`;
+                buttons.forEach(function(btn) {
+                    btn.style.width = controlSize + 'px';
+                    btn.style.height = controlSize + 'px';
+                    btn.style.fontSize = controlSize * 0.3 + 'px';
                 });
                 
-                joystickContainer.style.bottom = `${controlSize}px`;
-                joystickContainer.style.left = `${controlSize}px`;
+                joystickContainer.style.bottom = controlSize + 'px';
+                joystickContainer.style.left = controlSize + 'px';
                 
                 const mobileControls = document.querySelector('.mobile-controls');
-                mobileControls.style.bottom = `${controlSize}px`;
-                mobileControls.style.right = `${controlSize}px`;
+                mobileControls.style.bottom = controlSize + 'px';
+                mobileControls.style.right = controlSize + 'px';
                 
                 autoAimEnabled = true;
                 autoAimButton.classList.add('active');
@@ -2425,16 +2647,18 @@
             player.score = 0;
             player.kills = 0;
             player.zoom = 1.0;
-            wave = 1;
             enemies = [];
             bullets = [];
             enemyBullets = [];
             healthPacks = [];
             ammoPacks = [];
             enemiesKilled = 0;
-            enemiesToSpawn = difficulties[difficulty].enemiesPerWave;
+            
+            const levelSettings = getLevelSettings(currentLevel);
+            enemiesToSpawn = levelSettings.enemiesPerWave;
+            
             boss = null;
-            bossActive = false;
+            bossActive = currentLevel % 5 === 0;
             lastAmmoSpawn = 0;
             isReloading = false;
             isZoomed = false;
@@ -2453,13 +2677,18 @@
             lastShotTime = 0;
             
             // Спавним начальных врагов
-            const initialEnemies = Math.min(3, enemiesToSpawn);
+            const initialEnemies = Math.min(3 + Math.floor(currentLevel/2), enemiesToSpawn);
             for (let i = 0; i < initialEnemies; i++) {
                 spawnEnemy();
             }
             
             updateHUD();
             updateWaveInfo();
+            
+            // Если это уровень с боссом, спавним его сразу
+            if (bossActive) {
+                spawnBoss();
+            }
         }
         
         // Spawn enemy function
@@ -2487,19 +2716,19 @@
             }
 
             const enemyType = type !== null ? enemyTypes[type] : getRandomEnemyType();
-            const difficultySettings = difficulties[difficulty];
+            const levelSettings = getLevelSettings(currentLevel);
             
             // Улучшенные параметры врагов
             const enemy = {
                 x: x,
                 y: y,
                 radius: enemyType.radius,
-                health: difficultySettings.enemyHealth * (enemyType.healthMultiplier || 1) * (1 + (wave-1)*0.1),
-                maxHealth: difficultySettings.enemyHealth * (enemyType.healthMultiplier || 1) * (1 + (wave-1)*0.1),
-                damage: difficultySettings.enemyDamage * (enemyType.damageMultiplier || 1),
-                speed: difficultySettings.enemySpeed * (enemyType.speedMultiplier || 1),
+                health: levelSettings.enemyHealth * (enemyType.healthMultiplier || 1),
+                maxHealth: levelSettings.enemyHealth * (enemyType.healthMultiplier || 1),
+                damage: levelSettings.enemyDamage * (enemyType.damageMultiplier || 1),
+                speed: levelSettings.enemySpeed * (enemyType.speedMultiplier || 1),
                 lastShot: 0,
-                shootDelay: difficultySettings.enemyShootDelay * (enemyType.shootDelayMultiplier || 1),
+                shootDelay: levelSettings.enemyShootDelay * (enemyType.shootDelayMultiplier || 1),
                 type: enemyType.behavior,
                 pellets: enemyType.pellets || 1,
                 spread: enemyType.spread || 0,
@@ -2514,12 +2743,12 @@
         // Get random enemy type
         function getRandomEnemyType() {
             const random = Math.random();
-            const waveBonus = Math.min(0.3, wave * 0.05);
+            const levelBonus = Math.min(0.3, currentLevel * 0.03);
             
-            if (random > (0.95 - waveBonus)) {
+            if (random > (0.95 - levelBonus)) {
                 return enemyTypes.hunter;
             } 
-            else if (random > (0.90 - waveBonus)) {
+            else if (random > (0.90 - levelBonus)) {
                 return enemyTypes.tank;
             }
             else {
@@ -2529,7 +2758,7 @@
 
         // Update health packs
         function updateHealthPacks() {
-            healthPacks.forEach((pack, index) => {
+            healthPacks.forEach(function(pack, index) {
                 ctx.fillStyle = '#2ecc71';
                 ctx.beginPath();
                 ctx.arc(pack.x, pack.y, pack.radius, 0, Math.PI * 2);
@@ -2544,7 +2773,7 @@
                 ctx.lineTo(pack.x, pack.y + 5);
                 ctx.stroke();
                 
-                const distance = Math.sqrt((pack.x - player.x) ** 2 + (pack.y - player.y) ** 2);
+                const distance = Math.sqrt(Math.pow(pack.x - player.x, 2) + Math.pow(pack.y - player.y, 2));
                 if (distance < pack.radius + player.radius) {
                     player.health = Math.min(player.maxHealth, player.health + player.maxHealth * HEALTH_PACK_HEAL);
                     healthPacks.splice(index, 1);
@@ -2557,29 +2786,51 @@
         
         // Show health pickup effect
         function showHealthPickupEffect(x, y) {
+            // Проверяем, что координаты являются числами
+            if (typeof x !== 'number' || typeof y !== 'number') {
+                console.error('Invalid coordinates:', x, y);
+                return;
+            }
+
             const effect = document.createElement('div');
+            if (!effect) {
+                console.error('Failed to create effect element');
+                return;
+            }
+
             effect.className = 'health-pickup-effect';
             effect.textContent = translations[currentLanguage].healthPickup.replace('{amount}', Math.round(player.maxHealth * HEALTH_PACK_HEAL));
-            effect.style.left = `${x}px`;
-            effect.style.top = `${y}px`;
-            document.getElementById('gameContainer').appendChild(effect);
             
-            setTimeout(() => {
-                effect.remove();
-            }, 1000);
+            // Устанавливаем позицию с проверками
+            effect.style.position = 'absolute';
+            effect.style.left = Math.round(x) + 'px';
+            effect.style.top = Math.round(y) + 'px';
+            
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer) {
+                gameContainer.appendChild(effect);
+                
+                setTimeout(function() {
+                    if (effect.parentNode) {
+                        effect.parentNode.removeChild(effect);
+                    }
+                }, 1000);
+            } else {
+                console.error('gameContainer not found');
+            }
         }
         
         // Create explosion effect
         function createExplosion(x, y, radius) {
             const explosion = document.createElement('div');
             explosion.className = 'explosion';
-            explosion.style.width = `${radius * 2}px`;
-            explosion.style.height = `${radius * 2}px`;
-            explosion.style.left = `${x}px`;
-            explosion.style.top = `${y}px`;
+            explosion.style.width = radius * 2 + 'px';
+            explosion.style.height = radius * 2 + 'px';
+            explosion.style.left = x + 'px';
+            explosion.style.top = y + 'px';
             document.getElementById('gameContainer').appendChild(explosion);
             
-            setTimeout(() => {
+            setTimeout(function() {
                 explosion.remove();
             }, 500);
         }
@@ -2610,17 +2861,19 @@
                 const enemiesAlive = enemies.length;
                 const enemiesTotal = enemiesKilled + enemiesAlive;
                 
+                const levelSettings = getLevelSettings(currentLevel);
+                
                 if (enemiesTotal < enemiesToSpawn && 
-                    timestamp - lastEnemySpawn > difficulties[difficulty].spawnRate &&
-                    enemiesAlive < 5 + wave * 2) {
+                    timestamp - lastEnemySpawn > levelSettings.spawnRate &&
+                    enemiesAlive < 5 + currentLevel * 2) {
                     
                     spawnEnemy();
                     lastEnemySpawn = timestamp;
                 }
                 
-                // Переход на следующую волну
+                // Переход на следующий уровень
                 if (enemiesTotal >= enemiesToSpawn && enemiesAlive === 0) {
-                    nextWave();
+                    levelComplete();
                 }
             }
             
@@ -2678,7 +2931,7 @@
 
         // Update enemies and draw
         function updateEnemies(timestamp) {
-            enemies.forEach((enemy, index) => {
+            enemies.forEach(function(enemy, index) {
                 const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
                 enemy.x += Math.cos(angle) * enemy.speed;
                 enemy.y += Math.sin(angle) * enemy.speed;
@@ -2687,7 +2940,7 @@
                     enemy.lastShot = timestamp;
                     
                     if (enemy.type === 'melee') {
-                        const distance = Math.sqrt((player.x - enemy.x) ** 2 + (player.y - enemy.y) ** 2);
+                        const distance = Math.sqrt(Math.pow(player.x - enemy.x, 2) + Math.pow(player.y - enemy.y, 2));
                         if (distance < enemy.radius + player.radius + 20) {
                             player.health -= enemy.damage;
                             updateHUD();
@@ -2697,7 +2950,7 @@
                             }
                         }
                     } else if (enemy.type === 'shotgun') {
-                        for (let i = 0; i < enemy.pellets; i++) {
+                        for (let i = -1; i <= 1; i++) {
                             const spreadAngle = (Math.random() - 0.5) * enemy.spread;
                             enemyBullets.push({
                                 x: enemy.x,
@@ -2744,7 +2997,7 @@
                     
                     if ((enemy.type === 'melee' || enemy.type === 'shotgun') && enemy.health > 0) {
                         ctx.fillStyle = 'white';
-                        ctx.font = `bold ${enemy.radius}px Arial`;
+                        ctx.font = 'bold ' + enemy.radius + 'px Arial';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         const symbol = enemy.type === 'melee' ? 'T' : 'H';
@@ -2753,7 +3006,7 @@
                 }
                 
                 if (enemy.type !== 'melee' && enemy.health > 0) {
-                    const distance = Math.sqrt((player.x - enemy.x) ** 2 + (player.y - enemy.y) ** 2);
+                    const distance = Math.sqrt(Math.pow(player.x - enemy.x, 2) + Math.pow(player.y - enemy.y, 2));
                     if (distance < player.radius + enemy.radius) {
                         player.health -= enemy.damage;
                         updateHUD();
@@ -2789,13 +3042,13 @@
                 
                 for (let j = enemies.length - 1; j >= 0; j--) {
                     const enemy = enemies[j];
-                    const distance = Math.sqrt((bullet.x - enemy.x) ** 2 + (bullet.y - enemy.y) ** 2);
+                    const distance = Math.sqrt(Math.pow(bullet.x - enemy.x, 2) + Math.pow(bullet.y - enemy.y, 2));
                     if (distance < bullet.radius + enemy.radius) {
                         if (currentWeapon.name === 'RPG') {
                             createExplosion(bullet.x, bullet.y, currentWeapon.explosionRadius);
                             
-                            enemies.forEach(e => {
-                                const explosionDistance = Math.sqrt((bullet.x - e.x) ** 2 + (bullet.y - e.y) ** 2);
+                            enemies.forEach(function(e) {
+                                const explosionDistance = Math.sqrt(Math.pow(bullet.x - e.x, 2) + Math.pow(bullet.y - e.y, 2));
                                 if (explosionDistance < currentWeapon.explosionRadius) {
                                     const t = explosionDistance / currentWeapon.explosionRadius;
                                     const damageFactor = 1 - 0.5 * t - 0.5 * t * t;
@@ -2806,7 +3059,7 @@
                                         ctx.beginPath();
                                         ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
                                         ctx.fill();
-                                        setTimeout(() => {
+                                        setTimeout(function() {
                                             ctx.fillStyle = e.color;
                                             ctx.beginPath();
                                             ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
@@ -2844,7 +3097,7 @@
 
         // Update enemy bullets
         function updateEnemyBullets() {
-            enemyBullets.forEach((bullet, index) => {
+            enemyBullets.forEach(function(bullet, index) {
                 bullet.x += Math.cos(bullet.angle) * bullet.speed;
                 bullet.y += Math.sin(bullet.angle) * bullet.speed;
                 
@@ -2858,7 +3111,7 @@
                     return;
                 }
                 
-                const distance = Math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2);
+                const distance = Math.sqrt(Math.pow(bullet.x - player.x, 2) + Math.pow(bullet.y - player.y, 2));
                 if (distance < bullet.radius + player.radius) {
                     player.health -= bullet.damage;
                     enemyBullets.splice(index, 1);
@@ -2874,7 +3127,7 @@
 
         // Update ammo packs
         function updateAmmoPacks() {
-            ammoPacks.forEach((pack, index) => {
+            ammoPacks.forEach(function(pack, index) {
                 ctx.fillStyle = '#f1c40f';
                 ctx.beginPath();
                 ctx.arc(pack.x, pack.y, pack.radius, 0, Math.PI * 2);
@@ -2885,7 +3138,7 @@
                 ctx.arc(pack.x, pack.y, pack.radius / 2, 0, Math.PI * 2);
                 ctx.fill();
                 
-                const distance = Math.sqrt((pack.x - player.x) ** 2 + (pack.y - player.y) ** 2);
+                const distance = Math.sqrt(Math.pow(pack.x - player.x, 2) + Math.pow(pack.y - player.y, 2));
                 if (distance < pack.radius + player.radius) {
                     currentWeapon.totalAmmo += AMMO_PACK_AMOUNT;
                     ammoPacks.splice(index, 1);
@@ -2898,16 +3151,31 @@
 
         // Show ammo pickup effect
         function showAmmoPickupEffect(x, y) {
+            if (typeof x !== 'number' || typeof y !== 'number') {
+                console.error('Invalid coordinates:', x, y);
+                return;
+            }
+
             const effect = document.createElement('div');
+            if (!effect) return;
+
             effect.className = 'ammo-pickup-effect';
             effect.textContent = translations[currentLanguage].ammoPickup.replace('{amount}', AMMO_PACK_AMOUNT);
-            effect.style.left = `${x}px`;
-            effect.style.top = `${y}px`;
-            document.getElementById('gameContainer').appendChild(effect);
             
-            setTimeout(() => {
-                effect.remove();
-            }, 1000);
+            effect.style.position = 'absolute';
+            effect.style.left = Math.round(x) + 'px';
+            effect.style.top = Math.round(y) + 'px';
+            
+            const container = document.getElementById('gameContainer');
+            if (container) {
+                container.appendChild(effect);
+                
+                setTimeout(function() {
+                    if (effect.parentNode) {
+                        effect.parentNode.removeChild(effect);
+                    }
+                }, 1000);
+            }
         }
 
         // Spawn ammo pack
@@ -2918,7 +3186,7 @@
             do {
                 x = 30 + Math.random() * (canvas.width - 60);
                 y = 30 + Math.random() * (canvas.height - 60);
-            } while (Math.sqrt((x - player.x) ** 2 + (y - player.y) ** 2) < 100);
+            } while (Math.sqrt(Math.pow(x - player.x, 2) + Math.pow(y - player.y, 2)) < 100);
             
             ammoPacks.push({
                 x: x,
@@ -2939,7 +3207,7 @@
             
             if (isMobile) {
                 shootButton.style.transform = 'scale(0.9)';
-                setTimeout(() => {
+                setTimeout(function() {
                     shootButton.style.transform = 'scale(1)';
                 }, 100);
             }
@@ -2949,7 +3217,7 @@
             
             if (currentWeapon.name === 'AWP') {
                 currentWeapon.canShoot = false;
-                setTimeout(() => {
+                setTimeout(function() {
                     currentWeapon.canShoot = true;
                 }, currentWeapon.fireRate);
             }
@@ -2957,7 +3225,7 @@
             updateHUD();
             
             weaponDisplay.style.transform = 'translateX(-50%) scale(0.95)';
-            setTimeout(() => {
+            setTimeout(function() {
                 weaponDisplay.style.transform = 'translateX(-50%) scale(1)';
             }, 100);
             
@@ -3013,7 +3281,7 @@
             }
             
             if (currentWeapon.ammo <= 0 && currentWeapon.totalAmmo > 0 && !isReloading) {
-                setTimeout(() => {
+                setTimeout(function() {
                     if (currentWeapon.ammo <= 0) { // Проверяем еще раз, так как игрок мог вручную перезарядиться
                         reload();
                     }
@@ -3021,49 +3289,41 @@
             }
         }
 
-        // Next wave
-        function nextWave() {
-            wave++;
-            
-            // Проверка на финального босса
-            if (wave > difficulties[difficulty].totalWaves) {
-                spawnBoss();
-                return;
+        // Level complete
+        function levelComplete() {
+            console.log("Level " + currentLevel + " complete!"); // Debug
+            // Unlock next level if this is the highest level reached
+            if (currentLevel === unlockedLevel && unlockedLevel < TOTAL_LEVELS) {
+                unlockedLevel++;
+                saveSettings();
+                console.log("Unlocked level " + unlockedLevel); // Debug
             }
             
-            // Увеличиваем сложность с каждой волной
-            enemiesToSpawn = Math.floor(difficulties[difficulty].enemiesPerWave * (1 + (wave-1) * 0.2));
-            enemiesKilled = 0;
-            updateWaveInfo();
-            
-            // Спавним начальных врагов для новой волны
-            const initialEnemies = Math.min(3 + Math.floor(wave/2), enemiesToSpawn);
-            for (let i = 0; i < initialEnemies; i++) {
-                spawnEnemy();
-            }
+            gameOver(true);
         }
 
         // Spawn boss
         function spawnBoss() {
+            console.log("Spawning boss..."); // Debug
             bossActive = true;
             enemiesToSpawn = 0;
             
             bossHealthBar.style.display = 'block';
             bossNameDisplay.style.display = 'block';
-            bossNameDisplay.textContent = translations[currentLanguage].bossWave.replace('{wave}', wave);
+            bossNameDisplay.textContent = translations[currentLanguage].bossLevel.replace('{level}', currentLevel);
             
-            const difficultySettings = difficulties[difficulty];
+            const levelSettings = getLevelSettings(currentLevel);
             
             boss = {
                 x: canvas.width / 2,
                 y: -100,
-                radius: 40 + wave * 2,
-                health: 500 * (1 + (wave-1) * 0.3),
-                maxHealth: 500 * (1 + (wave-1) * 0.3),
-                damage: 15 + wave * 2,
-                speed: difficultySettings.bossSpeed,
+                radius: 40 + currentLevel * 2,
+                health: 500 * (1 + (currentLevel-1) * 0.3),
+                maxHealth: 500 * (1 + (currentLevel-1) * 0.3),
+                damage: 15 + currentLevel * 2,
+                speed: levelSettings.bossSpeed,
                 lastShot: 0,
-                shootDelay: 1000 - wave * 50, // Босс стреляет чаще на высоких волнах
+                shootDelay: 1000 - currentLevel * 50, // Босс стреляет чаще на высоких уровнях
                 phase: 0,
                 moveAngle: 0,
                 color: '#e74c3c',
@@ -3080,7 +3340,7 @@
             // Обновляем полосу здоровья босса
             const bossHealthFill = document.querySelector('.boss-health-fill');
             const healthPercent = (boss.health / boss.maxHealth) * 100;
-            bossHealthFill.style.width = `${healthPercent}%`;
+            bossHealthFill.style.width = healthPercent + '%';
             
             // Улучшенное движение босса
             boss.moveAngle += 0.015;
@@ -3102,7 +3362,7 @@
                             x: boss.x,
                             y: boss.y,
                             angle: angle + i * 0.2,
-                            speed: 3 + wave * 0.1,
+                            speed: 3 + currentLevel * 0.1,
                             radius: 8,
                             damage: boss.damage
                         });
@@ -3114,7 +3374,7 @@
                             x: boss.x,
                             y: boss.y,
                             angle: angle + i * 0.3,
-                            speed: 4 + wave * 0.1,
+                            speed: 4 + currentLevel * 0.1,
                             radius: 10,
                             damage: boss.damage * 1.5
                         });
@@ -3137,47 +3397,52 @@
                 bossActive = false;
                 bossHealthBar.style.display = 'none';
                 bossNameDisplay.style.display = 'none';
-                player.score += 100 * wave;
+                player.score += 100 * currentLevel;
                 
-                const bossIndex = enemies.findIndex(e => e === boss);
+                const bossIndex = enemies.findIndex(function(e) {
+                    return e === boss;
+                });
                 if (bossIndex !== -1) {
                     enemies.splice(bossIndex, 1);
                 }
                 
                 boss = null;
-                gameOver(true);
+                levelComplete();
             }
         }
 
         // Game over
         function gameOver(victory = false) {
+            console.log("Game over, victory: " + victory); // Debug
             cancelAnimationFrame(animationFrameId);
             gameRunning = false;
             gameOverScreen.style.display = "flex";
             
             const lang = translations[currentLanguage];
+            nextLevelButton.classList.toggle('hidden', !victory || currentLevel >= TOTAL_LEVELS);
             
             if (victory) {
                 document.querySelector('#gameOver h1').textContent = lang.victory;
-                resultStats.innerHTML = `
-                    <p>${lang.finalScore} ${player.score}</p>
-                    <p>${lang.totalKills} ${player.kills}</p>
-                    <p>${lang.wavesCompleted} ${wave - 1}/${difficulties[difficulty].totalWaves}</p>
-                `;
+                resultStats.innerHTML = '<p>' + lang.finalScore + ' ' + player.score + '</p>' +
+                                       '<p>' + lang.totalKills + ' ' + player.kills + '</p>' +
+                                       '<p>' + lang.levelsCompleted + ' ' + currentLevel + '/' + TOTAL_LEVELS + '</p>';
+                
+                if (currentLevel === unlockedLevel && unlockedLevel < TOTAL_LEVELS) {
+                    unlockedLevel++;
+                    saveSettings();
+                }
             } else {
                 document.querySelector('#gameOver h1').textContent = lang.gameOver;
-                resultStats.innerHTML = `
-                    <p>${lang.score} ${player.score}</p>
-                    <p>${lang.kills} ${player.kills}</p>
-                    <p>${lang.waveReached} ${wave}/${difficulties[difficulty].totalWaves}</p>
-                `;
+                resultStats.innerHTML = '<p>' + lang.score + ' ' + player.score + '</p>' +
+                                       '<p>' + lang.kills + ' ' + player.kills + '</p>' +
+                                       '<p>' + lang.levelReached + ' ' + currentLevel + '/' + TOTAL_LEVELS + '</p>';
             }
         }
 
         // Update HUD
         function updateHUD() {
-            healthFill.style.width = `${(player.health / player.maxHealth) * 100}%`;
-            ammoInfo.textContent = `${currentWeapon.ammo}/${currentWeapon.totalAmmo}`;
+            healthFill.style.width = (player.health / player.maxHealth) * 100 + '%';
+            ammoInfo.textContent = currentWeapon.ammo + '/' + currentWeapon.totalAmmo;
         }
         
         // Update wave info
@@ -3185,15 +3450,16 @@
             const lang = translations[currentLanguage];
             
             if (bossActive) {
-                waveInfo.textContent = `${lang.finalBoss} | ${lang.waveReached.split(':')[0]}: ${wave}/${difficulties[difficulty].totalWaves}`;
+                waveInfo.textContent = lang.level + ' ' + currentLevel + ': ' + lang.boss + ' | ' + lang.kills.split(':')[0] + ': ' + enemies.length;
             } else {
                 const enemiesRemaining = Math.max(0, enemiesToSpawn - enemiesKilled);
-                waveInfo.textContent = `${lang.waveReached.split(':')[0]}: ${wave}/${difficulties[difficulty].totalWaves} | ${lang.kills.split(':')[0]}: ${enemiesRemaining + enemies.length}`;
+                waveInfo.textContent = lang.level + ' ' + currentLevel + ' | ' + lang.kills.split(':')[0] + ': ' + (enemiesRemaining + enemies.length);
             }
         }
         
         // Start game
         function startGame() {
+            console.log("Starting game..."); // Debug
             menu.style.display = "none";
             gameContainer.style.display = "block";
             
@@ -3216,7 +3482,7 @@
                 const lang = translations[currentLanguage];
                 document.querySelector('#pauseMenu h2').textContent = lang.gamePaused;
                 resumeButton.textContent = lang.resume;
-                toggleAimButton.textContent = `${lang.autoAim.split(':')[0]}: ${autoAimEnabled ? 'ON' : 'OFF'}`;
+                toggleAimButton.textContent = lang.autoAim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
                 mainMenuButton.textContent = lang.mainMenu;
                 
                 pauseMenu.style.display = "flex";
@@ -3234,9 +3500,10 @@
         }
         
         // Initialize the game when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM fully loaded and parsed"); // Debug
             if (isMobile && screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(e => {
+                screen.orientation.lock('landscape').catch(function(e) {
                     console.log('Orientation lock failed: ', e);
                 });
             }
@@ -3245,10 +3512,9 @@
             initializeControls();
             
             selectWeapon('pistol');
-            selectDifficulty('normal');
             
             window.addEventListener('resize', resizeCanvas);
-            window.addEventListener('orientationchange', () => {
+            window.addEventListener('orientationchange', function() {
                 resizeCanvas();
                 if (gameRunning) {
                     player.x = canvas.width / 2;
@@ -3257,8 +3523,8 @@
             });
             
             canvas.addEventListener('mousemove', mouseMove);
-            canvas.addEventListener('mousedown', (e) => {
-                if (currentControls.shoot === `mouse${e.button}` && !mouseDown) {
+            canvas.addEventListener('mousedown', function(e) {
+                if (currentControls.shoot === 'mouse' + e.button && !mouseDown) {
                     mouseDown = true;
                     if (currentWeapon.autoFire) {
                         startAutoFire();
