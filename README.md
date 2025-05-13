@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="screen-orientation" content="landscape">
-    <title>Standoff 2</title>
+    <title>GunPowder</title>
     <style>
         body {
             margin: 0;
@@ -1167,10 +1167,10 @@
 </head>
 <body>
     <div id="menu">
-        <h1>Droch Gun</h1>
+        <h1>GunPowder</h1>
         
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v beta 1.0.2</div>
+        <div class="version-info">v beta 1.0.5</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
@@ -1909,10 +1909,11 @@
             
             // Modal controls
             levelsButton.addEventListener('click', function() {
-                console.log("Levels button clicked"); // Debug
-                updateLevelButtons();
-                levelsModal.style.display = 'flex';
-            });
+    console.log("Levels button clicked");
+    generateLevelButtons();  // Добавлена эта строка
+    updateLevelButtons();
+    levelsModal.style.display = 'flex';
+});
             gunsButton.addEventListener('click', function() {
                 gunsModal.style.display = 'flex';
             });
@@ -3494,10 +3495,11 @@
         }
         
         // Mouse movement
-        function mouseMove(e) {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        }
+        canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left; 
+    mouseY = e.clientY - rect.top;
+});
         
         // Initialize the game when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
