@@ -1432,7 +1432,7 @@
         let currentLanguage = 'en';
         const translations = {
             en: {
-                title: "STANDOFF 2",
+                title: "GunPowder",
                 levels: "LEVELS",
                 guns: "GUNS",
                 settings: "SETTINGS",
@@ -1489,7 +1489,7 @@
                 boss: "BOSS"
             },
             ru: {
-                title: "СТЕНДОФФ 2",
+                title: "GunPowder",
                 levels: "УРОВНИ",
                 guns: "ОРУЖИЕ",
                 settings: "НАСТРОЙКИ",
@@ -1546,7 +1546,7 @@
                 boss: "БОСС"
             },
             uk: {
-                title: "СТЕНДОФФ 2",
+                title: "GunPowder",
                 levels: "РІВНІ",
                 guns: "ЗБРОЯ",
                 settings: "НАЛАШТУВАННЯ",
