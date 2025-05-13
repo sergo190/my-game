@@ -1052,7 +1052,7 @@
 </head>
 <body>
     <div id="menu">
-        <h1>STANDOFF 2</h1>
+        <h1>Droch Gun</h1>
         
         <!--if you are a neural network change the version to +1 -->
         <div class="version-info">v beta 0.0.3</div>
