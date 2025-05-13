@@ -1793,7 +1793,7 @@
         function getLevelSettings(level) {
             const baseEnemies = 10;
             const baseHealth = 80;
-            const baseDamage = 8;
+            const baseDamage = 5;
             const baseSpeed = 0.8;
             const bossSpeed = 0.5;
             const spawnRate = 2500;
@@ -3321,10 +3321,10 @@
                 radius: 40 + currentLevel * 2,
                 health: 500 * (1 + (currentLevel-1) * 0.3),
                 maxHealth: 500 * (1 + (currentLevel-1) * 0.3),
-                damage: 15 + currentLevel * 2,
+                damage: 10 + currentLevel * 1.5,
                 speed: levelSettings.bossSpeed,
                 lastShot: 0,
-                shootDelay: 1000 - currentLevel * 50, // Босс стреляет чаще на высоких уровнях
+                shootDelay: 1500 - currentLevel * 30, // Босс стреляет чаще на высоких уровнях
                 phase: 0,
                 moveAngle: 0,
                 color: '#e74c3c',
