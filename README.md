@@ -1795,7 +1795,7 @@
             const baseHealth = 80;
             const baseDamage = 8;
             const baseSpeed = 0.8;
-            const bossSpeed = 1.0;
+            const bossSpeed = 0.5;
             const spawnRate = 2500;
             const enemyShootDelay = 2000;
             
@@ -1806,7 +1806,7 @@
                 enemyHealth: Math.floor(baseHealth * levelMultiplier),
                 enemyDamage: Math.floor(baseDamage * levelMultiplier),
                 enemySpeed: baseSpeed * levelMultiplier,
-                bossSpeed: bossSpeed * levelMultiplier,
+                bossSpeed: bossSpeed * (levelMultiplier * 0.5),
                 spawnRate: Math.max(500, spawnRate - (level - 1) * 100),
                 enemiesPerWave: Math.floor(baseEnemies * levelMultiplier),
                 enemyShootDelay: Math.max(500, enemyShootDelay - (level - 1) * 50)
