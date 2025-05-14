@@ -1163,20 +1163,41 @@
                 padding: 10px;
             }
         }
+
+        /* Upgrades Modal Styles */
+        #upgradesModal .modal-content {
+            max-width: 400px;
+        }
+        #upgradesModal .settings-section-title {
+            color: #f1c40f;
+        }
+        #upgradesModal .settings-option-value {
+            color: #f1c40f;
+            margin-left: 10px;
+        }
+        #upgradesModal .menu-button {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div id="menu">
         <h1>GunPowder</h1>
         
+        <!-- HUD монет в левом верхнем углу меню -->
+        <div id="menuCoinHud" style="position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.7);border-radius:8px;padding:8px 18px;font-size:20px;color:#f1c40f;z-index:300;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-weight:bold;">
+            <span style="font-size:26px;">💲</span><span id="menuCoinAmount">0</span>
+        </div>
+        
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v beta 1.0.5</div>
+        <div class="version-info">v beta 1.1.7</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
             <button class="tab-button" id="levelsButton">LEVELS</button>
             <button class="tab-button" id="gunsButton">GUNS</button>
             <button class="tab-button" id="settingsButton">SETTINGS</button>
+            <button class="tab-button" id="upgradesButton">UPGRADES</button>
             <button class="menu-button main-action" id="startButton">START GAME</button>
         </div>
         
@@ -1293,6 +1314,32 @@
             <div class="language-option" data-lang="en">English</div>
             <div class="language-option" data-lang="ru">Русский (Russian)</div>
             <div class="language-option" data-lang="uk">Українська (Ukrainian)</div>
+        </div>
+    </div>
+
+    <!-- Upgrades Modal -->
+    <div class="modal" id="upgradesModal">
+        <button class="back-button" id="backFromUpgrades">←</button>
+        <div class="modal-content">
+            <div class="modal-title">UPGRADES</div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <div class="settings-section-title">MAX HP</div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">Increase max HP by 10</div>
+                        <div class="settings-option-value" id="upgradeHpCost">100 💲</div>
+                        <button class="menu-button" id="buyHpUpgrade">BUY</button>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-section-title">DEFENSE</div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">Increase defense by 5% (max 30%)</div>
+                        <div class="settings-option-value" id="upgradeDefCost">200 💲</div>
+                        <button class="menu-button" id="buyDefUpgrade">BUY</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1424,6 +1471,10 @@
         const AMMO_SPAWN_INTERVAL = 8000; // 8 seconds
         const TOTAL_LEVELS = 20;
         
+        // --- COINS ---
+        let coins = 0;
+        let coinPacks = [];
+        
         // Auto-fire variables
         let autoFireInterval = null;
         let animationFrameId = null;
@@ -1486,7 +1537,14 @@
                 supportButton: "SUPPORT THE DEVELOPER",
                 enemies: "Enemies",
                 level: "Level",
-                boss: "BOSS"
+                boss: "BOSS",
+                upgrades: "UPGRADES",
+                maxHp: "MAX HP",
+                maxHpDesc: "Increase max HP by 10",
+                defense: "DEFENSE",
+                defenseDesc: "Increase defense by 5% (max 30%)",
+                buy: "BUY",
+                max: "MAX"
             },
             ru: {
                 title: "GunPowder",
@@ -1543,7 +1601,14 @@
                 supportButton: "ПОДДЕРЖАТЬ РАЗРАБОТЧИКА",
                 enemies: "Враги",
                 level: "Уровень",
-                boss: "БОСС"
+                boss: "БОСС",
+                upgrades: "УЛУЧШЕНИЯ",
+                maxHp: "МАКС. ЗДОРОВЬЕ",
+                maxHpDesc: "Увеличить макс. здоровье на 10",
+                defense: "ЗАЩИТА",
+                defenseDesc: "Увеличить защиту на 5% (макс. 30%)",
+                buy: "КУПИТЬ",
+                max: "МАКС"
             },
             uk: {
                 title: "GunPowder",
@@ -1601,7 +1666,14 @@
                 supportButton: "ПІДТРИМАТИ РОЗРОБНИКА",
                 enemies: "Вороги",
                 level: "Рівень",
-                boss: "БОС"
+                boss: "БОС",
+                upgrades: "ПОЛІПШЕННЯ",
+                maxHp: "МАКС. HP",
+                maxHpDesc: "Збільшити макс. HP на 10",
+                defense: "ЗАХИСТ",
+                defenseDesc: "Збільшити захист на 5% (макс. 30%)",
+                buy: "КУПИТИ",
+                max: "МАКС"
             }
         };
         
@@ -1824,7 +1896,8 @@
             angle: 0,
             score: 0,
             kills: 0,
-            zoom: 1.0
+            zoom: 1.0,
+            defense: 0 // процент защиты (0-30)
         };
         
         let currentWeapon = {...weapons.pistol};
@@ -2146,6 +2219,9 @@
             localStorage.setItem('standoff2_language', currentLanguage);
             localStorage.setItem('standoff2_controls', JSON.stringify(currentControls));
             localStorage.setItem('standoff2_unlockedLevel', unlockedLevel);
+            localStorage.setItem('standoff2_coins', coins);
+            localStorage.setItem('standoff2_hpUpgradeLevel', hpUpgradeLevel);
+            localStorage.setItem('standoff2_defUpgradeLevel', defUpgradeLevel);
             console.log("Settings saved"); // Debug
         }
         
@@ -2174,6 +2250,19 @@
                 unlockedLevel = parseInt(savedLevel);
                 console.log("Loaded unlockedLevel: " + unlockedLevel); // Debug
             }
+            
+            const savedCoins = localStorage.getItem('standoff2_coins');
+            if (savedCoins) {
+                coins = parseInt(savedCoins);
+            }
+            
+            const savedHp = localStorage.getItem('standoff2_hpUpgradeLevel');
+            if (savedHp) hpUpgradeLevel = parseInt(savedHp);
+            const savedDef = localStorage.getItem('standoff2_defUpgradeLevel');
+            if (savedDef) defUpgradeLevel = parseInt(savedDef);
+            hpUpgradeCost = Math.floor(hpUpgradeBaseCost * Math.pow(1.1, hpUpgradeLevel));
+            defUpgradeCost = Math.floor(defUpgradeBaseCost * Math.pow(1.1, defUpgradeLevel));
+            updateMenuCoinHud();
         }
         
         // Set language
@@ -2244,6 +2333,17 @@
             
             // Save language
             saveSettings();
+            
+            // Upgrades
+            upgradesButton.textContent = translations[lang].upgrades;
+            document.querySelector('#upgradesModal .modal-title').textContent = translations[lang].upgrades;
+            document.querySelector('#upgradesModal .settings-section-title').textContent = translations[lang].maxHp;
+            document.querySelectorAll('#upgradesModal .settings-section-title')[1].textContent = translations[lang].defense;
+            document.querySelector('#upgradesModal .settings-option-label').textContent = translations[lang].maxHpDesc;
+            document.querySelectorAll('#upgradesModal .settings-option-label')[1].textContent = translations[lang].defenseDesc;
+            buyHpUpgrade.textContent = translations[lang].buy;
+            buyDefUpgrade.textContent = translations[lang].buy;
+            updateUpgradeUI();
         }
 
         // Select weapon function
@@ -2598,6 +2698,7 @@
             pauseMenu.style.display = 'none';
             gameContainer.style.display = 'none';
             menu.style.display = 'flex';
+            updateMenuCoinHud();
         }
         
         // Initialize game
@@ -2690,6 +2791,9 @@
             if (bossActive) {
                 spawnBoss();
             }
+            
+            applyUpgradesToPlayer();
+            player.health = player.maxHealth;
         }
         
         // Spawn enemy function
@@ -2738,6 +2842,8 @@
             };
             
             enemies.push(enemy);
+            
+            // coinPacks больше не создаём
             return enemy;
         }
 
@@ -2855,6 +2961,7 @@
             
             updateAmmoPacks();
             updateHealthPacks();
+            updateCoinPacks(); // <--- добавлено
             updatePlayer();
             
             // Исправленный спавн врагов
@@ -2943,7 +3050,9 @@
                     if (enemy.type === 'melee') {
                         const distance = Math.sqrt(Math.pow(player.x - enemy.x, 2) + Math.pow(player.y - enemy.y, 2));
                         if (distance < enemy.radius + player.radius + 20) {
-                            player.health -= enemy.damage;
+                            let dmg = enemy.damage;
+                            if (player.defense) dmg = Math.round(dmg * (1 - player.defense / 100));
+                            player.health -= dmg;
                             updateHUD();
                             
                             if (player.health <= 0) {
@@ -3009,7 +3118,9 @@
                 if (enemy.type !== 'melee' && enemy.health > 0) {
                     const distance = Math.sqrt(Math.pow(player.x - enemy.x, 2) + Math.pow(player.y - enemy.y, 2));
                     if (distance < player.radius + enemy.radius) {
-                        player.health -= enemy.damage;
+                        let dmg = enemy.damage;
+                        if (player.defense) dmg = Math.round(dmg * (1 - player.defense / 100));
+                        player.health -= dmg;
                         updateHUD();
                         
                         const knockbackAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
@@ -3082,6 +3193,12 @@
                             enemiesKilled++;
                             updateWaveInfo();
                             
+                            // НАЧИСЛЯЕМ МОНЕТЫ
+                            let coinCount = 1 + Math.floor(Math.random() * 4);
+                            coins += coinCount;
+                            saveSettings();
+                            updateHUD();
+                            updateWaveInfo();
                             if (Math.random() < HEALTH_PACK_CHANCE) {
                                 healthPacks.push({
                                     x: enemy.x,
@@ -3114,7 +3231,9 @@
                 
                 const distance = Math.sqrt(Math.pow(bullet.x - player.x, 2) + Math.pow(bullet.y - player.y, 2));
                 if (distance < bullet.radius + player.radius) {
-                    player.health -= bullet.damage;
+                    let dmg = bullet.damage;
+                    if (player.defense) dmg = Math.round(dmg * (1 - player.defense / 100));
+                    player.health -= dmg;
                     enemyBullets.splice(index, 1);
                     updateHUD();
                     
@@ -3444,6 +3563,25 @@
         function updateHUD() {
             healthFill.style.width = (player.health / player.maxHealth) * 100 + '%';
             ammoInfo.textContent = currentWeapon.ammo + '/' + currentWeapon.totalAmmo;
+            if (!document.getElementById('coinCounter')) {
+                const coinDiv = document.createElement('div');
+                coinDiv.id = 'coinCounter';
+                coinDiv.style.position = 'absolute';
+                coinDiv.style.top = '10px';
+                coinDiv.style.right = '50%';
+                coinDiv.style.transform = 'translateX(50%)';
+                coinDiv.style.background = 'rgba(0,0,0,0.6)';
+                coinDiv.style.borderRadius = '5px';
+                coinDiv.style.padding = '6px 18px';
+                coinDiv.style.fontSize = '18px';
+                coinDiv.style.color = '#f1c40f';
+                coinDiv.style.display = 'flex';
+                coinDiv.style.alignItems = 'center';
+                coinDiv.innerHTML = '<span style="font-size:22px;margin-right:8px;">💲</span><span id="coinAmount">0</span>';
+                gameContainer.appendChild(coinDiv);
+            }
+            document.getElementById('coinAmount').textContent = coins;
+            updateMenuCoinHud();
         }
         
         // Update wave info
@@ -3538,6 +3676,119 @@
                 }
             });
         });
+
+        // Update coins (draw and collect)
+        function updateCoinPacks() {
+            for (let i = coinPacks.length - 1; i >= 0; i--) {
+                const pack = coinPacks[i];
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(pack.x, pack.y, pack.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#f1c40f';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.restore();
+                ctx.font = 'bold 16px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💲', pack.x, pack.y);
+                // Сбор монеты
+                const dist = Math.sqrt((pack.x - player.x) ** 2 + (pack.y - player.y) ** 2);
+                if (dist < pack.radius + player.radius) {
+                    coins += pack.amount;
+                    saveSettings();
+                    showCoinPickupEffect(pack.x, pack.y, pack.amount);
+                    coinPacks.splice(i, 1);
+                    updateHUD();
+                }
+            }
+        }
+
+        // Показываем эффект сбора монеты
+        function showCoinPickupEffect(x, y, amount) {
+            const effect = document.createElement('div');
+            effect.className = 'ammo-pickup-effect';
+            effect.style.color = '#f1c40f';
+            effect.textContent = `+${amount} 💲`;
+            effect.style.left = Math.round(x) + 'px';
+            effect.style.top = Math.round(y) + 'px';
+            const container = document.getElementById('gameContainer');
+            if (container) {
+                container.appendChild(effect);
+                setTimeout(() => { if (effect.parentNode) effect.parentNode.removeChild(effect); }, 1000);
+            }
+        }
+
+        // Upgrades variables
+        let hpUpgradeLevel = 0;
+        let defUpgradeLevel = 0;
+        let hpUpgradeBaseCost = 100;
+        let defUpgradeBaseCost = 200;
+        let hpUpgradeCost = hpUpgradeBaseCost;
+        let defUpgradeCost = defUpgradeBaseCost;
+        
+        // Upgrades elements
+        const upgradesButton = document.getElementById('upgradesButton');
+        const upgradesModal = document.getElementById('upgradesModal');
+        const backFromUpgrades = document.getElementById('backFromUpgrades');
+        const buyHpUpgrade = document.getElementById('buyHpUpgrade');
+        const buyDefUpgrade = document.getElementById('buyDefUpgrade');
+        const upgradeHpCost = document.getElementById('upgradeHpCost');
+        const upgradeDefCost = document.getElementById('upgradeDefCost');
+        
+        // Открытие/закрытие окна улучшений
+        upgradesButton.addEventListener('click', function() {
+            updateUpgradeUI();
+            upgradesModal.style.display = 'flex';
+        });
+        backFromUpgrades.addEventListener('click', function() {
+            upgradesModal.style.display = 'none';
+        });
+        
+        // Покупка улучшения HP
+        buyHpUpgrade.addEventListener('click', function() {
+            if (coins >= hpUpgradeCost) {
+                coins -= hpUpgradeCost;
+                hpUpgradeLevel++;
+                hpUpgradeCost = Math.floor(hpUpgradeBaseCost * Math.pow(1.1, hpUpgradeLevel));
+                saveSettings();
+                updateUpgradeUI();
+                updateHUD();
+            }
+        });
+        // Покупка улучшения защиты
+        buyDefUpgrade.addEventListener('click', function() {
+            if (coins >= defUpgradeCost && defUpgradeLevel < 6) {
+                coins -= defUpgradeCost;
+                defUpgradeLevel++;
+                defUpgradeCost = Math.floor(defUpgradeBaseCost * Math.pow(1.1, defUpgradeLevel));
+                saveSettings();
+                updateUpgradeUI();
+                updateHUD();
+            }
+        });
+        // Обновление UI апгрейдов
+        function updateUpgradeUI() {
+            upgradeHpCost.textContent = hpUpgradeCost + ' 💲';
+            upgradeDefCost.textContent = defUpgradeCost + ' 💲';
+            buyDefUpgrade.disabled = defUpgradeLevel >= 6;
+            if (defUpgradeLevel >= 6) {
+                upgradeDefCost.textContent = translations[currentLanguage].max;
+            }
+        }
+        // Применение апгрейдов к игроку
+        function applyUpgradesToPlayer() {
+            player.maxHealth = 100 + hpUpgradeLevel * 10;
+            player.defense = Math.min(defUpgradeLevel * 5, 30);
+        }
+
+        // Добавляю функцию для обновления монет в меню
+        function updateMenuCoinHud() {
+            var el = document.getElementById('menuCoinAmount');
+            if (el) el.textContent = coins;
+        }
     </script>
 </body>
 </html>
