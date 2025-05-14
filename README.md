@@ -1795,7 +1795,7 @@
             const baseHealth = 80;
             const baseDamage = 5;
             const baseSpeed = 0.8;
-            const bossSpeed = 0.5;
+            const bossSpeed = 0.1;
             const spawnRate = 2500;
             const enemyShootDelay = 2000;
             
