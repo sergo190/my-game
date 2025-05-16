@@ -496,7 +496,8 @@
             right: 30px;
             z-index: 100;
             display: none;
-            flex-direction: row;
+            flex-direction: column;
+            align-items: flex-end;
             gap: 15px;
         }
 
@@ -1178,6 +1179,176 @@
         #upgradesModal .menu-button {
             margin-left: 10px;
         }
+        /* FPS Counter */
+        #fpsCounter {
+            position: absolute;
+            top: 10px;
+            right: 210px;
+            background: rgba(0,0,0,0.7);
+            color: #0f0;
+            font-size: 16px;
+            font-family: monospace;
+            padding: 4px 12px;
+            border-radius: 6px;
+            z-index: 120;
+            pointer-events: none;
+            display: none;
+        }
+        /* Switch (toggle) styles */
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 48px;
+          height: 24px;
+          margin-left: 12px;
+        }
+        .switch input {display:none;}
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: #ccc;
+          transition: .4s;
+          border-radius: 24px;
+        }
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+        }
+        input:checked + .slider {
+          background-color: #2ecc71;
+        }
+        input:checked + .slider:before {
+          transform: translateX(24px);
+        }
+        #shootButton {
+            width: 140px !important;
+            height: 140px !important;
+            font-size: 40px !important;
+            margin-right: 0;
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            #shootButton {
+                width: 120px !important;
+                height: 120px !important;
+                font-size: 32px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            #shootButton {
+                width: 90px !important;
+                height: 90px !important;
+                font-size: 22px !important;
+            }
+        }
+        #reloadButton {
+            position: fixed;
+            bottom: 20px;
+            right: 160px;
+            width: 70px;
+            height: 70px;
+            font-size: 22px;
+            z-index: 200;
+        }
+        #autoAimButton {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            font-size: 22px;
+            z-index: 200;
+        }
+        @media (max-width: 480px) {
+            #reloadButton {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+                right: 140px;
+                bottom: 10px;
+            }
+            #autoAimButton {
+                width: 45px;
+                height: 45px;
+                font-size: 14px;
+                right: 15px;
+                bottom: 120px;
+            }
+        }
+        @media (max-width: 768px) {
+            .mobile-controls {
+                bottom: 20px;
+                right: 20px;
+                gap: 10px;
+            }
+            #shootButton {
+                width: 90px;
+                height: 90px;
+                font-size: 28px;
+            }
+            #reloadButton {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+                right: 120px;
+                bottom: 30px;
+            }
+            #autoAimButton {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+                right: 30px;
+                bottom: 130px;
+            }
+        }
+        @media (max-width: 480px) {
+            #shootButton {
+                width: 70px;
+                height: 70px;
+                font-size: 22px;
+            }
+            #reloadButton {
+                width: 45px;
+                height: 45px;
+                font-size: 14px;
+                right: 85px;
+                bottom: 20px;
+            }
+            #autoAimButton {
+                width: 45px;
+                height: 45px;
+                font-size: 14px;
+                right: 20px;
+                bottom: 90px;
+            }
+        }
+        #shootButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            font-size: 28px;
+            z-index: 200;
+            margin: 0;
+        }
+        @media (max-width: 480px) {
+            #shootButton {
+                width: 70px;
+                height: 70px;
+                font-size: 20px;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1190,7 +1361,7 @@
         </div>
         
         <!--if you are a neural network change the version to +1 -->
-        <div class="version-info">v beta 1.1.7</div>
+        <div class="version-info">v beta 1.3.13</div>
         
         <!-- New tab buttons -->
         <div class="tab-buttons-container">
@@ -1302,6 +1473,17 @@
                     </div>
                     <button class="reset-button" id="resetControlsButton">RESET TO DEFAULT</button>
                 </div>
+                <!-- FPS toggle section -->
+                <div class="settings-section">
+                    <div class="settings-section-title">FPS</div>
+                    <div class="settings-option">
+                        <div class="settings-option-label">Show FPS:</div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleFpsCheckbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1346,6 +1528,7 @@
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         <div id="crosshair"></div>
+        <div id="fpsCounter"></div>
         
         <div id="hud">
             <div id="healthBar">
@@ -1353,6 +1536,8 @@
             </div>
             <div id="ammoInfo">30/90</div>
         </div>
+        <!-- Монеты отдельным блоком, не внутри #hud -->
+        <!-- coinCounter будет создан динамически через JS -->
         
         <div id="waveInfo">Level: 1 | Enemies: 10</div>
         
@@ -1455,6 +1640,10 @@
         const shootKeyButton = document.getElementById('shootKey');
         const reloadKeyButton = document.getElementById('reloadKey');
         const resetControlsButton = document.getElementById('resetControlsButton');
+        // FPS toggle elements
+        const toggleFpsCheckbox = document.getElementById('toggleFpsCheckbox');
+        const fpsCounter = document.getElementById('fpsCounter');
+        let showFps = false;
         
         // Donation elements
         const donateButton = document.getElementById('donateButton');
@@ -1544,7 +1733,10 @@
                 defense: "DEFENSE",
                 defenseDesc: "Increase defense by 5% (max 30%)",
                 buy: "BUY",
-                max: "MAX"
+                max: "MAX",
+                showFps: "Show FPS:",
+                fpsShow: "SHOW",
+                fpsHide: "HIDE"
             },
             ru: {
                 title: "GunPowder",
@@ -1608,7 +1800,10 @@
                 defense: "ЗАЩИТА",
                 defenseDesc: "Увеличить защиту на 5% (макс. 30%)",
                 buy: "КУПИТЬ",
-                max: "МАКС"
+                max: "МАКС",
+                showFps: "Показать FPS:",
+                fpsShow: "ПОКАЗАТЬ",
+                fpsHide: "СКРЫТЬ"
             },
             uk: {
                 title: "GunPowder",
@@ -1673,7 +1868,10 @@
                 defense: "ЗАХИСТ",
                 defenseDesc: "Збільшити захист на 5% (макс. 30%)",
                 buy: "КУПИТИ",
-                max: "МАКС"
+                max: "МАКС",
+                showFps: "Показати FPS:",
+                fpsShow: "ПОКАЗАТИ",
+                fpsHide: "СХОВАТИ"
             }
         };
         
@@ -1706,6 +1904,7 @@
             
             canvas.width = safeWidth;
             canvas.height = safeHeight;
+            console.log('canvas.width:', canvas.width, 'canvas.height:', canvas.height, 'window:', width, height);
             
             // Scale UI for mobile
             if (isMobile) {
@@ -2270,44 +2469,50 @@
             if (!translations[lang]) return;
             
             currentLanguage = lang;
-            currentLanguageDisplay.textContent = translations[lang].currentLanguage;
-            
+            if (currentLanguageDisplay) currentLanguageDisplay.textContent = translations[lang].currentLanguage;
             // Update UI elements
-            document.querySelector('#menu h1').textContent = translations[lang].title;
-            levelsButton.textContent = translations[lang].levels;
-            gunsButton.textContent = translations[lang].guns;
-            settingsButton.textContent = translations[lang].settings;
-            startButton.textContent = translations[lang].startGame;
-            
-            document.querySelector('#levelsModal .modal-title').textContent = translations[lang].selectLevel;
-            document.querySelector('#gunsModal .modal-title').textContent = translations[lang].selectWeapon;
-            document.querySelector('#settingsModal .modal-title').textContent = translations[lang].settingsTitle;
-            
-            document.querySelector('#languageOption .settings-option-label').textContent = translations[lang].language + ':';
-            languageButton.textContent = translations[lang].changeLanguage;
-            
-            document.querySelector('#settingsModal .settings-section:nth-child(2) .settings-section-title').textContent = translations[lang].controls;
-            document.querySelector('#forwardKey').previousElementSibling.textContent = translations[lang].moveForward;
-            document.querySelector('#backwardKey').previousElementSibling.textContent = translations[lang].moveBackward;
-            document.querySelector('#leftKey').previousElementSibling.textContent = translations[lang].moveLeft;
-            document.querySelector('#rightKey').previousElementSibling.textContent = translations[lang].moveRight;
-            document.querySelector('#shootKey').previousElementSibling.textContent = translations[lang].shoot;
-            document.querySelector('#reloadKey').previousElementSibling.textContent = translations[lang].reload;
-            resetControlsButton.textContent = translations[lang].resetControls;
-            
-            document.querySelector('#languageModal .modal-title').textContent = translations[lang].selectLanguage;
-            
-            // Обновляем текст в меню паузы
-            document.querySelector('#pauseMenu h2').textContent = translations[lang].gamePaused;
-            resumeButton.textContent = translations[lang].resume;
-            toggleAimButton.textContent = translations[lang].autoAim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
-            mainMenuButton.textContent = translations[lang].mainMenu;
-            
-            restartButton.textContent = translations[lang].playAgain;
-            nextLevelButton.textContent = translations[lang].nextLevel;
-            mainMenuButton2.textContent = translations[lang].mainMenu;
-            
-            // Обновляем названия оружия
+            const menuH1 = document.querySelector('#menu h1');
+            if (menuH1) menuH1.textContent = translations[lang].title;
+            if (levelsButton) levelsButton.textContent = translations[lang].levels;
+            if (gunsButton) gunsButton.textContent = translations[lang].guns;
+            if (settingsButton) settingsButton.textContent = translations[lang].settings;
+            if (startButton) startButton.textContent = translations[lang].startGame;
+            const levelsModalTitle = document.querySelector('#levelsModal .modal-title');
+            if (levelsModalTitle) levelsModalTitle.textContent = translations[lang].selectLevel;
+            const gunsModalTitle = document.querySelector('#gunsModal .modal-title');
+            if (gunsModalTitle) gunsModalTitle.textContent = translations[lang].selectWeapon;
+            const settingsModalTitle = document.querySelector('#settingsModal .modal-title');
+            if (settingsModalTitle) settingsModalTitle.textContent = translations[lang].settingsTitle;
+            const languageOptionLabel = document.querySelector('#languageOption .settings-option-label');
+            if (languageOptionLabel) languageOptionLabel.textContent = translations[lang].language + ':';
+            if (languageButton) languageButton.textContent = translations[lang].changeLanguage;
+            const controlsSectionTitle = document.querySelector('#settingsModal .settings-section:nth-child(2) .settings-section-title');
+            if (controlsSectionTitle) controlsSectionTitle.textContent = translations[lang].controls;
+            const forwardKeyLabel = document.querySelector('#forwardKey')?.previousElementSibling;
+            if (forwardKeyLabel) forwardKeyLabel.textContent = translations[lang].moveForward;
+            const backwardKeyLabel = document.querySelector('#backwardKey')?.previousElementSibling;
+            if (backwardKeyLabel) backwardKeyLabel.textContent = translations[lang].moveBackward;
+            const leftKeyLabel = document.querySelector('#leftKey')?.previousElementSibling;
+            if (leftKeyLabel) leftKeyLabel.textContent = translations[lang].moveLeft;
+            const rightKeyLabel = document.querySelector('#rightKey')?.previousElementSibling;
+            if (rightKeyLabel) rightKeyLabel.textContent = translations[lang].moveRight;
+            const shootKeyLabel = document.querySelector('#shootKey')?.previousElementSibling;
+            if (shootKeyLabel) shootKeyLabel.textContent = translations[lang].shoot;
+            const reloadKeyLabel = document.querySelector('#reloadKey')?.previousElementSibling;
+            if (reloadKeyLabel) reloadKeyLabel.textContent = translations[lang].reload;
+            if (resetControlsButton) resetControlsButton.textContent = translations[lang].resetControls;
+            const languageModalTitle = document.querySelector('#languageModal .modal-title');
+            if (languageModalTitle) languageModalTitle.textContent = translations[lang].selectLanguage;
+            // Pause menu
+            const pauseMenuH2 = document.querySelector('#pauseMenu h2');
+            if (pauseMenuH2) pauseMenuH2.textContent = translations[lang].gamePaused;
+            if (resumeButton) resumeButton.textContent = translations[lang].resume;
+            if (toggleAimButton) toggleAimButton.textContent = translations[lang].autoAim.split(':')[0] + ': ' + (autoAimEnabled ? 'ON' : 'OFF');
+            if (mainMenuButton) mainMenuButton.textContent = translations[lang].mainMenu;
+            if (restartButton) restartButton.textContent = translations[lang].playAgain;
+            if (nextLevelButton) nextLevelButton.textContent = translations[lang].nextLevel;
+            if (mainMenuButton2) mainMenuButton2.textContent = translations[lang].mainMenu;
+            // Оружие
             const weaponData = {
                 pistol: translations[lang].pistol,
                 rifle: translations[lang].rifle,
@@ -2315,35 +2520,28 @@
                 awp: translations[lang].awp,
                 rpg: translations[lang].rpg
             };
-            
             weaponButtons.forEach(function(btn) {
                 const weaponType = btn.dataset.weapon;
                 btn.textContent = weaponData[weaponType];
             });
-            
-            // Обновляем мобильные элементы управления
-            shootButton.textContent = translations[lang].fire;
-            autoAimButton.textContent = translations[lang].aim;
-            
-            // Обновляем кнопку авто-прицела
-            updateAimButtonText();
-            
-            // Regenerate level buttons with new language
-            generateLevelButtons();
-            
-            // Save language
-            saveSettings();
-            
+            if (shootButton) shootButton.textContent = translations[lang].fire;
+            if (autoAimButton) autoAimButton.textContent = translations[lang].aim;
+            if (typeof updateAimButtonText === 'function') updateAimButtonText();
+            if (typeof generateLevelButtons === 'function') generateLevelButtons();
+            if (typeof saveSettings === 'function') saveSettings();
             // Upgrades
-            upgradesButton.textContent = translations[lang].upgrades;
-            document.querySelector('#upgradesModal .modal-title').textContent = translations[lang].upgrades;
-            document.querySelector('#upgradesModal .settings-section-title').textContent = translations[lang].maxHp;
-            document.querySelectorAll('#upgradesModal .settings-section-title')[1].textContent = translations[lang].defense;
-            document.querySelector('#upgradesModal .settings-option-label').textContent = translations[lang].maxHpDesc;
-            document.querySelectorAll('#upgradesModal .settings-option-label')[1].textContent = translations[lang].defenseDesc;
-            buyHpUpgrade.textContent = translations[lang].buy;
-            buyDefUpgrade.textContent = translations[lang].buy;
-            updateUpgradeUI();
+            if (upgradesButton) upgradesButton.textContent = translations[lang].upgrades;
+            const upgradesModalTitle = document.querySelector('#upgradesModal .modal-title');
+            if (upgradesModalTitle) upgradesModalTitle.textContent = translations[lang].upgrades;
+            const upgradesSectionTitles = document.querySelectorAll('#upgradesModal .settings-section-title');
+            if (upgradesSectionTitles[0]) upgradesSectionTitles[0].textContent = translations[lang].maxHp;
+            if (upgradesSectionTitles[1]) upgradesSectionTitles[1].textContent = translations[lang].defense;
+            const upgradesOptionLabels = document.querySelectorAll('#upgradesModal .settings-option-label');
+            if (upgradesOptionLabels[0]) upgradesOptionLabels[0].textContent = translations[lang].maxHpDesc;
+            if (upgradesOptionLabels[1]) upgradesOptionLabels[1].textContent = translations[lang].defenseDesc;
+            if (buyHpUpgrade) buyHpUpgrade.textContent = translations[lang].buy;
+            if (buyDefUpgrade) buyDefUpgrade.textContent = translations[lang].buy;
+            if (typeof updateUpgradeUI === 'function') updateUpgradeUI();
         }
 
         // Select weapon function
@@ -2943,106 +3141,114 @@
         }
         
         // Game loop
+        let lastFrameTime = null;
+
         function gameLoop(timestamp) {
             if (!gameRunning || gamePaused) return;
-            
             animationFrameId = requestAnimationFrame(gameLoop);
-            
+
+            // --- Time delta (dt) ---
+            if (!lastFrameTime) lastFrameTime = timestamp;
+            let dt = (timestamp - lastFrameTime) / 1000; // в секундах
+            if (dt > 0.1) dt = 0.1; // ограничение на случай лагов
+            lastFrameTime = timestamp;
+
             updateAutoAim();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#333';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             // Спавн патронов
             if (timestamp - lastAmmoSpawn > AMMO_SPAWN_INTERVAL) {
                 spawnAmmoPack();
                 lastAmmoSpawn = timestamp;
             }
-            
+
             updateAmmoPacks();
             updateHealthPacks();
-            updateCoinPacks(); // <--- добавлено
-            updatePlayer();
-            
-            // Исправленный спавн врагов
+            updateCoinPacks();
+            updatePlayer(dt);
+
             if (!bossActive) {
                 const enemiesAlive = enemies.length;
                 const enemiesTotal = enemiesKilled + enemiesAlive;
-                
                 const levelSettings = getLevelSettings(currentLevel);
-                
                 if (enemiesTotal < enemiesToSpawn && 
                     timestamp - lastEnemySpawn > levelSettings.spawnRate &&
                     enemiesAlive < 5 + currentLevel * 2) {
-                    
                     spawnEnemy();
                     lastEnemySpawn = timestamp;
                 }
-                
-                // Переход на следующий уровень
                 if (enemiesTotal >= enemiesToSpawn && enemiesAlive === 0) {
                     levelComplete();
                 }
             }
-            
-            updateEnemies(timestamp);
-            updateBullets();
-            updateEnemyBullets();
-            
+
+            updateEnemies(timestamp, dt);
+            updateBullets(dt);
+            updateEnemyBullets(dt);
             if (bossActive) {
-                updateBoss();
+                updateBoss(dt);
             }
+
+            updateFps(dt); // <-- FPS update
         }
 
         // Update player position and draw
-        function updatePlayer() {
+        function updatePlayer(dt = 1) {
             let moveX = 0;
             let moveY = 0;
-            
-            if (keys[currentControls.forward] || keys['arrowup']) moveY -= player.speed;
-            if (keys[currentControls.backward] || keys['arrowdown']) moveY += player.speed;
-            if (keys[currentControls.left] || keys['arrowleft']) moveX -= player.speed;
-            if (keys[currentControls.right] || keys['arrowright']) moveX += player.speed;
-            
+            let speed = player.speed * dt * 60; // вернул *60
+            if (keys[currentControls.forward] || keys['arrowup']) moveY -= speed;
+            if (keys[currentControls.backward] || keys['arrowdown']) moveY += speed;
+            if (keys[currentControls.left] || keys['arrowleft']) moveX -= speed;
+            if (keys[currentControls.right] || keys['arrowright']) moveX += speed;
             if (joystickActive) {
                 const joystickDistance = Math.sqrt(joystickX * joystickX + joystickY * joystickY);
                 if (joystickDistance > 0) {
                     const normalizedX = joystickX / joystickDistance;
                     const normalizedY = joystickY / joystickDistance;
-                    
                     const moveDistance = Math.min(joystickDistance, joystickContainer.offsetWidth / 2) / (joystickContainer.offsetWidth / 2);
-                    moveX += normalizedX * player.speed * moveDistance;
-                    moveY += normalizedY * player.speed * moveDistance;
+                    moveX += normalizedX * speed * moveDistance;
+                    moveY += normalizedY * speed * moveDistance;
                 }
             }
-            
             if (moveX !== 0 && moveY !== 0) {
                 const length = Math.sqrt(moveX * moveX + moveY * moveY);
-                moveX = (moveX / length) * player.speed;
-                moveY = (moveY / length) * player.speed;
+                moveX = (moveX / length) * speed;
+                moveY = (moveY / length) * speed;
             }
-            
             player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x + moveX));
             player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y + moveY));
-            
             player.angle = Math.atan2(mouseY - player.y, mouseX - player.x);
-            
             ctx.fillStyle = '#3498db';
             ctx.beginPath();
             ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
             ctx.fill();
-            
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2;
             ctx.stroke();
         }
 
         // Update enemies and draw
-        function updateEnemies(timestamp) {
+        function updateEnemies(timestamp, dt = 1) {
+            console.log('enemies for draw:', enemies.map(e => [e.x, e.y, e.radius]));
             enemies.forEach(function(enemy, index) {
+                // ВРЕМЕННО: рисуем всех врагов ярко-зелёным
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'lime';
+                ctx.globalAlpha = 1;
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                
                 const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-                enemy.x += Math.cos(angle) * enemy.speed;
-                enemy.y += Math.sin(angle) * enemy.speed;
+                let speed = enemy.speed * dt * 60; // вернул *60
+                enemy.x += Math.cos(angle) * speed;
+                enemy.y += Math.sin(angle) * speed;
                 
                 if (timestamp - enemy.lastShot > enemy.shootDelay && enemy.health > 0) {
                     enemy.lastShot = timestamp;
@@ -3136,11 +3342,11 @@
         }
 
         // Update bullets
-        function updateBullets() {
+        function updateBullets(dt = 1) {
             for (let i = bullets.length - 1; i >= 0; i--) {
                 const bullet = bullets[i];
-                bullet.x += Math.cos(bullet.angle) * bullet.speed;
-                bullet.y += Math.sin(bullet.angle) * bullet.speed;
+                bullet.x += Math.cos(bullet.angle) * bullet.speed * dt * 100;
+                bullet.y += Math.sin(bullet.angle) * bullet.speed * dt * 100;
                 
                 ctx.fillStyle = bullet.color;
                 ctx.beginPath();
@@ -3214,10 +3420,10 @@
         }
 
         // Update enemy bullets
-        function updateEnemyBullets() {
+        function updateEnemyBullets(dt = 1) {
             enemyBullets.forEach(function(bullet, index) {
-                bullet.x += Math.cos(bullet.angle) * bullet.speed;
-                bullet.y += Math.sin(bullet.angle) * bullet.speed;
+                bullet.x += Math.cos(bullet.angle) * bullet.speed * dt * 100;
+                bullet.y += Math.sin(bullet.angle) * bullet.speed * dt * 100;
                 
                 ctx.fillStyle = '#e74c3c';
                 ctx.beginPath();
@@ -3454,7 +3660,7 @@
         }
 
         // Update boss
-        function updateBoss() {
+        function updateBoss(dt = 1) {
             if (!bossActive || !boss) return;
             
             // Обновляем полосу здоровья босса
@@ -3463,7 +3669,7 @@
             bossHealthFill.style.width = healthPercent + '%';
             
             // Улучшенное движение босса
-            boss.moveAngle += 0.015;
+            boss.moveAngle += 0.015 * dt*25;
             const moveRadius = canvas.width / 3;
             boss.x = canvas.width / 2 + Math.cos(boss.moveAngle) * moveRadius;
             boss.y = canvas.height / 3 + Math.sin(boss.moveAngle * 2) * (moveRadius / 2);
@@ -3518,14 +3724,23 @@
                 bossHealthBar.style.display = 'none';
                 bossNameDisplay.style.display = 'none';
                 player.score += 100 * currentLevel;
-                
+
+                // Мгновенное зачисление монет с босса
+                const coinsToDrop = 5;
+                const bossCoinAmount = coinsToDrop * 50;
+                coins += bossCoinAmount;
+                saveSettings();
+                updateHUD();
+                // Показываем эффект сбора монет в центре босса
+                showCoinPickupEffect(boss.x, boss.y, bossCoinAmount);
+
                 const bossIndex = enemies.findIndex(function(e) {
                     return e === boss;
                 });
                 if (bossIndex !== -1) {
                     enemies.splice(bossIndex, 1);
                 }
-                
+
                 boss = null;
                 levelComplete();
             }
@@ -3568,8 +3783,7 @@
                 coinDiv.id = 'coinCounter';
                 coinDiv.style.position = 'absolute';
                 coinDiv.style.top = '10px';
-                coinDiv.style.right = '50%';
-                coinDiv.style.transform = 'translateX(50%)';
+                coinDiv.style.left = '230px'; // справа от полоски здоровья (healthBar шириной 200px + отступ)
                 coinDiv.style.background = 'rgba(0,0,0,0.6)';
                 coinDiv.style.borderRadius = '5px';
                 coinDiv.style.padding = '6px 18px';
@@ -3608,6 +3822,7 @@
             
             init();
             animationFrameId = requestAnimationFrame(gameLoop);
+            console.log('canvas.width:', canvas.width, 'canvas.height:', canvas.height);
         }
         
         // Toggle pause
@@ -3631,13 +3846,6 @@
                 animationFrameId = requestAnimationFrame(gameLoop);
             }
         }
-        
-        // Mouse movement
-        canvas.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left; 
-    mouseY = e.clientY - rect.top;
-});
         
         // Initialize the game when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -3789,6 +3997,92 @@
             var el = document.getElementById('menuCoinAmount');
             if (el) el.textContent = coins;
         }
+
+        // FPS toggle logic
+        function updateFpsButtonText() {
+            const lang = translations[currentLanguage];
+            toggleFpsCheckbox.textContent = showFps ? lang.fpsHide : lang.fpsShow;
+        }
+        function updateFpsLabel() {
+            const lang = translations[currentLanguage];
+            // Найти все секции настроек
+            const sections = document.querySelectorAll('#settingsModal .settings-section');
+            for (const section of sections) {
+                const title = section.querySelector('.settings-section-title');
+                if (title && title.textContent.trim().toUpperCase() === 'FPS') {
+                    const label = section.querySelector('.settings-option-label');
+                    if (label) label.textContent = lang.showFps;
+                }
+            }
+        }
+        function updateFpsCheckbox() {
+            toggleFpsCheckbox.checked = showFps;
+        }
+        toggleFpsCheckbox.addEventListener('change', function() {
+            showFps = toggleFpsCheckbox.checked;
+            localStorage.setItem('standoff2_showFps', showFps ? '1' : '0');
+            fpsCounter.style.display = showFps ? 'block' : 'none';
+        });
+
+        // FPS calculation
+        let lastFpsUpdate = 0;
+        let frames = 0;
+        let fps = 0;
+        function updateFps(dt) {
+            frames++;
+            if (performance.now() - lastFpsUpdate > 500) {
+                fps = Math.round((frames * 1000) / (performance.now() - lastFpsUpdate));
+                lastFpsUpdate = performance.now();
+                frames = 0;
+                if (showFps) {
+                    fpsCounter.textContent = fps + ' FPS';
+                }
+            }
+        }
+
+        // Восстановление showFps из localStorage
+        const savedShowFps = localStorage.getItem('standoff2_showFps');
+        if (savedShowFps === '1') {
+            showFps = true;
+            fpsCounter.style.display = 'block';
+        }
+        updateFpsCheckbox();
+
+        // Вызов обновления текста кнопки FPS при смене языка
+        const originalSetLanguage = setLanguage;
+        setLanguage = function(lang) {
+            originalSetLanguage(lang);
+            updateDonationUI();
+            updateFpsButtonText && updateFpsButtonText();
+            updateFpsLabel && updateFpsLabel();
+            updateFpsCheckbox();
+        };
+
+        // Инициализация текста кнопки FPS
+        updateFpsButtonText();
+        updateFpsLabel();
+
+        // Глобально доступная функция для обновления UI доната
+        function updateDonationUI() {
+            const lang = translations[currentLanguage];
+            const donateTitle = document.querySelector('.donate-title');
+            if (donateTitle) donateTitle.textContent = lang.donateTitle;
+            const donateText = document.querySelector('.donate-text');
+            if (donateText) donateText.textContent = lang.donateText;
+            const donateLinkButton = document.querySelector('.donate-link-button');
+            if (donateLinkButton) donateLinkButton.textContent = lang.donateButton;
+            const donateCloseButton = document.getElementById('donateCloseButton');
+            if (donateCloseButton) donateCloseButton.textContent = lang.donateClose;
+            const donateButtonEl = document.getElementById('donateButton');
+            if (donateButtonEl) donateButtonEl.textContent = lang.supportButton;
+        }
+
+        // Обработчик движения мыши по canvas (для ПК)
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
     </script>
 </body>
 </html>
