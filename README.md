@@ -2346,8 +2346,8 @@
             const button = document.getElementById(control + 'Key');
             button.textContent = '...';
             button.style.backgroundColor = '#2ecc71';
-            
-            // Add temporary event listener for key press
+
+            // Обработчик нажатия клавиши
             const keyListener = function(e) {
                 if (e.type === 'keydown') {
                     const key = e.key.toLowerCase();
@@ -2356,18 +2356,22 @@
                         bindControl(control, key);
                         e.preventDefault();
                         document.removeEventListener('keydown', keyListener);
+                        document.removeEventListener('mousedown', mouseListener);
                     }
                 }
             };
-            
+
+            // Обработчик нажатия мыши
             const mouseListener = function(e) {
-                if (e.type === 'mousedown') {
-                    bindControl(control, 'mouse' + e.button);
-                    e.preventDefault();
-                    document.removeEventListener('mousedown', mouseListener);
-                }
+                // Если клик был по самой кнопке — игнорируем
+                if (e.target === button) return;
+                // Иначе — назначаем мышь
+                bindControl(control, 'mouse' + e.button);
+                e.preventDefault();
+                document.removeEventListener('keydown', keyListener);
+                document.removeEventListener('mousedown', mouseListener);
             };
-            
+
             document.addEventListener('keydown', keyListener);
             document.addEventListener('mousedown', mouseListener);
         }
